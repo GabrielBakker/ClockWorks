@@ -13,3 +13,4 @@
 /data/*
 !/data/.gitkeep
 /tempfile*.brs
+/fileio_errorlog*.txt
