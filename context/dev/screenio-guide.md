@@ -540,6 +540,32 @@ ordinary colors, shows whatever changed).
 Same `fnMaster$` engine as any other screen call throughout — a "screen" control is purely a
 *placement and activation* wrapper around it, not a different runtime path.
 
+### Driving a child screen from its parent
+
+Three facts confirmed by ScreenIO's author (2026-10-09) against the `screenio.brs` source, while
+designing a parent screen whose embedded child lists the parent record's detail lines:
+
+1. **Pass the child its key through the control's `FUNCTION$` text.** `fnOpenScreen` builds
+   `"[" & FieldName$ & "]" & Function$` and hands it to `Fnparsescreeninfo`, which `EXECUTE`s
+   everything after the `]` (or, if that text starts with `{` or `#`, calls it as a function and
+   uses the result as the child's *key*). So a `screen` control whose `FIELDNAME$` is the child
+   screen and whose `FUNCTION$` is `ParentKey$=F$(IV_INVOICENO)` hands the child the parent's
+   current invoice number as `ParentKey$`; the child's Filter then shows only matching rows.
+2. **Refresh it with `RedrawScreens`, and only when something changed.** Any event can set
+   `RedrawScreens=1`; on its next pass the main loop calls `fnDrawScreens`, which redraws every
+   embedded child (a fresh load, so the child's listview is repopulated). `RedrawScreens=-n`
+   redraws only control `n`. Redrawing children is relatively slow, so set it only when the
+   child's data actually changed — e.g. after a line was really added, never after a failed
+   lookup.
+3. **Validate, not Main Loop, for "the user typed something and pressed Enter".** After each input
+   pass, ScreenIO runs the Validate event (the control's `FUNCTION$`) of every input field whose
+   text changed, before acting on the key. Enter (`Function=0`) only exits a screen that has its
+   own `listview` control (`fnTheresAListview`); a screen whose list lives in an embedded child has
+   none, so Enter just validates and stays. Main Loop also works but fires on every pass, so it
+   would have to test which field was current and which key was pressed; Validate only fires when
+   the data changed. A barcode scanner (it types the code and presses Enter) therefore works
+   through Validate too.
+
 <a id="authoring"></a>
 ## 9. Authoring a new screen programmatically (writing `screenio.dat`/`screenfld.dat` directly)
 
