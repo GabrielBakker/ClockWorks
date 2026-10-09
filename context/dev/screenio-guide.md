@@ -581,7 +581,8 @@ designing a parent screen whose embedded child lists the parent record's detail 
   Loop** event: it runs after a button's function has set `ExitMode`, so it can still cancel with
   the three-statement pattern below.
 - **Open a screen's file OutIn in your own event code, even for lookups.** A ScreenIO screen
-  opens its bound file OutIn. If an event function opened that same file input-only first (say,
+  opens its bound file OutIn, deliberately (owner): that way the file can always be opened for
+  editing later in the session without hitting this same error. Follow the same rule. If an event function opened that same file input-only first (say,
   the calling screen's Enter event, for a lookup), opening the screen fails with BR error 0608,
   "open permission conflict": once a file is open for input, every later open in the session
   must be input too, so the OutIn open has to come first. Confirmed 2026-10-09: a register's
