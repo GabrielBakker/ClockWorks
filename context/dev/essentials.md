@@ -145,7 +145,10 @@ Two kinds of content, both load-bearing:
     **required**; this is Lexi's real syntax for a case/switch-style branch, confirmed to
     translate line-for-line into `IF expr = value THEN ... ELSE IF expr = value2 THEN ... END
     IF` (each original `#Select#`/`#Case#`/`#End Select#` line is kept as a trailing `!` comment
-    on its replacement). **Bare `SELECT CASE ... END SELECT` (no `#` signs) is not valid syntax
+    on its replacement). **The first `#Case#` must share the `#Select#` line**
+    (`#Select# Type$ #Case# "caption"`); split across two lines, Lexi translates only the
+    `#End Select#`, leaving an `END IF` with nothing open (see
+    [Lexi](../br_tree/00-configuration/installation-tooling/Lexi.md)). **Bare `SELECT CASE ... END SELECT` (no `#` signs) is not valid syntax
     at all** — not base BR, and not Lexi either; Lexi leaves it completely untouched and it then
     fails to `LOAD` in real BR. (A previous version of this note called plain `SELECT CASE`
     Lexi syntax — that was wrong, most likely from reading Lexi's own header comment, which
