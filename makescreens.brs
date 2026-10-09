@@ -21,6 +21,7 @@
    let Screenio=Fnopen("screenio",mat Screenio$,mat Screenio,mat Form$)
    let Screenfld=Fnopen("screenfld",mat Screenfld$,mat Screenfld,mat Form$)
 
+   let fnBuildQtyEdit
    let fnBuildSaleLines
    let fnBuildItemSearch
    let fnBuildRegister
@@ -38,6 +39,19 @@
    close #LogFile:
    stop
 
+! ----- QTYEDIT: change the quantity on one sales line (Change Qty on SALELINES) ------
+def fnBuildQtyEdit
+   let fnStartScreen("QTYEDIT","sales",8,62,"FFFFFF","3C2614",1,"Change Quantity","Edits the quantity of one sales line. Opened by SALELINES' Change Qty button with the line's key.","","","","{writesaleqty}")
+   !         Type       Name                 Field          Text                   Row Col Wid Spec Hgt Function
+   let fnCtl("caption", "Caption_ITEMID",    "",            "Item:",                2,  3, 10,  5,  1, "","","R")
+   let fnCtl("C",       "Field_ITEMID",      "ITEMID",      "Caption_ITEMID",       2, 14, 10,  8,  1, "","","","",1)
+   let fnCtl("C",       "Field_DESCRIPTION", "DESCRIPTION", "Caption_ITEMID",       3, 14, 46, 60,  1, "","","","",1)
+   let fnCtl("caption", "Caption_QTY",       "",            "Quantity:",            5,  3, 10,  9,  1, "","","R")
+   let fnCtl("C",       "Field_QTY",         "QTY",         "Caption_QTY",          5, 14, 10,  6,  1, "{validatesaleqty}","","R","PIC(ZZ#.##)")
+   let fnCtl("button",  "SaveButton",        "",            "Save",                 7, 36, 10,  4,  1, "let ExitMode=SaveAndQuit")
+   let fnCtl("button",  "CancelButton",      "",            "Cancel",               7, 49, 10,  6,  1, "let ExitMode=QuitOnly")
+fnend
+
 ! ----- SALELINES: the current sale's lines, embedded in REGISTER --------------------
 def fnBuildSaleLines
    let fnStartScreen("SALELINES","sales",10,90,"FFFFFF","50331A",0,"","Lines of the sale in progress. Embedded in REGISTER, which passes its invoice number as ParentKey$.")
@@ -45,11 +59,13 @@ def fnBuildSaleLines
    let fnCtl("LISTVIEW", "",                 "",            "",                1,  1, 90,  1,  9, "{salelinesfilter}","LV1")
    let fnCtl("LISTCHLD", "Field_ITEMID",     "ITEMID",      "Item",            1,  0,  8,  8,  1, "","LV1")
    let fnCtl("LISTCHLD", "Field_DESCRIPTION","DESCRIPTION", "Description",     1,  0, 40, 60,  1, "","LV1")
-   let fnCtl("LISTCHLD", "Field_QTY",        "QTY",         "Qty",             1,  0,  5,  5,  1, "","LV1","R","N 5")
+   let fnCtl("LISTCHLD", "Field_QTY",        "QTY",         "Qty",             1,  0,  6,  6,  1, "","LV1","R","PIC(ZZ#.##)")
    let fnCtl("LISTCHLD", "Field_UNITPRICE",  "UNITPRICE",   "Price",           1,  0, 10, 14,  1, "","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("LISTCHLD", "Field_DISCOUNT",   "DISCOUNT",    "Disc",            1,  0,  8, 14,  1, "","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("LISTCHLD", "Field_EXTENDED",   "EXTENDED",    "Amount",          1,  0, 10, 14,  1, "","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("LISTCHLD", "Field_TAXABLE",    "TAXABLE",     "Tx",              1,  0,  3,  1,  1, "","LV1","C")
+   let fnCtl("button",   "ChangeQtyButton",  "",            "Change Qty",     10,  2, 14, 10,  1, "[QTYEDIT]Key$=CurrentKey$")
+   let fnCtl("button",   "RemoveLineButton", "",            "Remove Line",    10, 18, 14, 11,  1, "{removesaleline}")
 fnend
 
 ! ----- ITEMSEARCH: pick an item from inventory (opened by REGISTER's Search) ---------
@@ -104,8 +120,8 @@ def fnBuildRegister
 fnend
 
 ! Deletes any existing records for this screen, then writes its header record, with
-! its Enter, Exit and Main Loop event functions if it has any.
-def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes$*255;EnterFn$*255,ExitFn$*255,LoopFn$*255)
+! its Enter, Exit, Main Loop and Write event functions if it has any.
+def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes$*255;EnterFn$*255,ExitFn$*255,LoopFn$*255,WriteFn$*255)
    let CurrentScreen$=Code$
    let CaptionCount=TextboxCount=ButtonCount=ScreenCount=0
    let fnRemoveScreen(Code$)
@@ -119,6 +135,7 @@ def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes
    let Screenio$(SI_ENTERFN)=EnterFn$
    let Screenio$(SI_EXITFN)=ExitFn$
    let Screenio$(SI_LOOPFN)=LoopFn$
+   let Screenio$(SI_WRITEFN)=WriteFn$
    let Screenio$(SI_CREATEUSER)=Screenio$(SI_MODIFYUSER)="Claude"
    let Screenio(SI_VSIZE)=Rows
    let Screenio(SI_HSIZE)=Cols

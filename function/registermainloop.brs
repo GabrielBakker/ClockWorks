@@ -15,9 +15,14 @@
 ! fnAbandonSale - Deletes the current invoice's lines, and hands its invoice number
 !   back if no later sale has taken a number since.
 !
+!   While a sale is open it also re-totals the sale on every pass, so the totals
+!   follow any line changed or removed inside SALELINES (Change Qty, Remove Line).
+!
 ! #Include {registerenter}
+! #Include {additemtosale}
 
-def fnRegisterMainloop
+def fnRegisterMainloop(;___,ItemQty,LastLine)
+   if F$(IV_STATUS)="O" then let fnTotalSale("",ItemQty,LastLine)
    if ExitMode and F$(IV_STATUS)="O" then
       if 2==Msgbox("This sale has items on it. Are you sure you want to quit? They will be removed from the sale.","Quit This Sale?","yN","QST") then
          let fnAbandonSale

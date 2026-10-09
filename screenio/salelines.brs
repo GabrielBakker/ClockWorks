@@ -42,8 +42,31 @@
 05016    end if
 05017 fnend
 05018 !
-05019 !
-05020 !
+05019 ! Imported From "function\removesaleline.brs"
+05020 ! function\removesaleline.brs
+05021 ! Created on 10/09/2026
+05022 !
+05023 ! fnRemoveSaleLine - Remove Line button on SALELINES. Asks first, then deletes the
+05024 !   selected line from the sales file and refreshes the list. REGISTER's Main Loop
+05025 !   recalculates the sale's totals when the clerk returns to it.
+05026 !
+05027 dim RlSales$(1)*1024, RlSales(1)
+05028 !
+05029 def fnRemoveSaleLine(;___,RlSalesFile)
+05030    if trim$(CurrentKey$)="" or trim$(F$(SL_ITEMID))="" then
+05031       let Msgbox("Please select the line to remove first.","Remove Line","OK","INF")
+05032    else if 2==Msgbox("Remove "&trim$(F$(SL_DESCRIPTION))&" from this sale?","Remove Line","yN","QST") then
+05033       let RlSalesFile=fnOpen("sales",mat RlSales$,mat RlSales,mat Form$)
+05034       read #RlSalesFile, using form$(RlSalesFile), key=CurrentKey$: mat RlSales$, mat RlSales nokey RemoveLineGone
+05035       delete #RlSalesFile:
+05036       RemoveLineGone: !
+05037       let fnCloseFile(RlSalesFile,"sales")
+05038       let RepopulateListviews=1
+05039    end if
+05040 fnend
+05041 !
+05042 !
+05043 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{salelinesfilter}" then
 85002       let fnCheckStringFunction = 18
@@ -51,14 +74,16 @@
 85004       let fnCheckStringFunction = 0
 85005    else if Function$ = "{final_salelinesfilter}" then
 85006       let fnCheckStringFunction = 0
-85007       else
-85008          if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
-85009             print "Function ("&function$&") on screen SALELINES is not Supported: The library is out of date or fn not found."
-85010          end if
-85011       end if
-85012    fnend
-85013 !
-85014 !
+85007    else if Function$ = "{removesaleline}" then
+85008       let fnCheckStringFunction = 0
+85009       else
+85010          if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
+85011             print "Function ("&function$&") on screen SALELINES is not Supported: The library is out of date or fn not found."
+85012          end if
+85013       end if
+85014    fnend
+85015 !
+85016 !
 89000    def library fnFunctionSwitch(Function$*255,mat Subscripts$,mat PassedData$,&FieldIndex,&FieldText$,&ControlIndex,&Key$,&ExitMode,&RepopulateListviews,&RedrawListviews,&CurrentField,&CurrentField$,&Prefix$,&CurrentKey$,&CurrentRec,&ParentKey$,&DataFile,Window,&CurrentRow,LockUser$,&Path$,&Selecting,mat Disk_F$,mat Disk_F,&OnRead,&TryToContinue,&DisplayOnly,&Active,&RedrawFrames,&RedrawScreens,&RepopulateCombo,mat F$,mat F, mat S$,mat CnvrtIn$,mat FieldsSSubs$,mat FieldsNSubs$,mat FieldName$,mat ControlName$,mat ScreenSubs$,mat Function$,mat SpecWidth,mat Form$,mat ScreenData$,mat ScreenLongData$,mat ScreenData,mat ReturnData$,mat ControlSpec$)
 89010       let fnFunctionSwitch = fnFS(Function$,mat Subscripts$,mat PassedData$,FieldIndex,FieldText$,ControlIndex,Key$,ExitMode,RepopulateListviews,RedrawListviews,CurrentField,CurrentField$,Prefix$,CurrentKey$,CurrentRec,ParentKey$,DataFile,Window,CurrentRow,LockUser$,Path$,Selecting,mat Disk_F$,mat Disk_F,OnRead,TryToContinue,DisplayOnly,Active,RedrawFrames,RedrawScreens,RepopulateCombo,mat F$,mat F, mat S$,mat CnvrtIn$,mat FieldsSSubs$,mat FieldsNSubs$,mat FieldName$,mat ControlName$,mat ScreenSubs$,mat Function$,mat SpecWidth,mat Form$,mat ScreenData$,mat ScreenLongData$,mat ScreenData,mat ReturnData$,mat ControlSpec$)
 89020    fnend
@@ -139,18 +164,20 @@
 92016       let ReturnValue$ = fnSaleLinesFilter$
 92017    else if Function$ = "{init_salelinesfilter}" then
 92018    else if Function$ = "{final_salelinesfilter}" then
-92019    else
-92020       if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
-92021          print "Function ("&function$&") on screen SALELINES is not Supported: The library is out of date or fn not found."
-92022       end if
-92023    end if
-92024 !
-92025    if ~DataIsInside or Function$="{{GetData}}" then
-92026       let fnPushData(2)
-92027       let DataIsInside=0
-92028    end if
-92029 return
-92030 !
+92019    else if Function$ = "{removesaleline}" then
+92020       let ReturnValue = fnRemoveSaleLine
+92021    else
+92022       if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
+92023          print "Function ("&function$&") on screen SALELINES is not Supported: The library is out of date or fn not found."
+92024       end if
+92025    end if
+92026 !
+92027    if ~DataIsInside or Function$="{{GetData}}" then
+92028       let fnPushData(2)
+92029       let DataIsInside=0
+92030    end if
+92031 return
+92032 !
 99000 OPEN: !   ***** Function  To Call Library Openfile And Proc Subs
 99010    def Fnopen(Filename$*255, Mat F$, Mat F, Mat Form$; Inputonly, Keynum, Dont_Sort_Subs, Path$*255, Mat Descr$, Mat Field_Widths,Supress_Prompt,Ignore_Errors,Suppress_Log,mat DateFmt$,___,Index)
 99020       dim _FileIOSubs$(1)*800, _loadedsubs$(1)*32

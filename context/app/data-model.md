@@ -147,12 +147,12 @@ order you concatenate values to build a `KEY=` lookup), and every field with its
 | `LINENO` | BH 2 | 9-10 | Line Number |
 | `ITEMID$` | C 8 | 11-18 | Item Number |
 | `DESCRIPTION$` | V 60 | 19-78 | Description as Sold |
-| `QTY` | PD 4 | 79-82 | Quantity |
-| `UNITPRICE` | PD 6.2 | 83-88 | Unit Price |
-| `DISCOUNT` | PD 6.2 | 89-94 | Line Discount |
-| `EXTENDED` | PD 6.2 | 95-100 | Extended Amount |
-| `TAXABLE$` | C 1 | 101-101 | Taxable (Y/N) |
-| `SALEDATE` | BH 3 | 102-104 | Sale Date _(DATE(Julian))_ |
+| `QTY` | PD 5.2 | 79-83 | Quantity (hours for labor) |
+| `UNITPRICE` | PD 6.2 | 84-89 | Unit Price |
+| `DISCOUNT` | PD 6.2 | 90-95 | Line Discount |
+| `EXTENDED` | PD 6.2 | 96-101 | Extended Amount |
+| `TAXABLE$` | C 1 | 102-102 | Taxable (Y/N) |
+| `SALEDATE` | BH 3 | 103-105 | Sale Date _(DATE(Julian))_ |
 
 <a id="screenfld.lay"></a>
 ## screenfld.lay

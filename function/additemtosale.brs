@@ -2,12 +2,14 @@
 ! Created on 10/09/2026
 !
 ! fnAddItemToSale - Validate event for REGISTER's "Item # / UPC" box. Rings up
-!   whatever was typed or scanned, then clears the box for the next item.
+!   whatever was typed or scanned, then clears the box for the next item. A
+!   quantity can go in front with an asterisk: 1.5*SVC0004 is an hour and a half of
+!   labor, 3*PRT0001 is three clock keys. Also called by the magnifier's search.
 !
-! fnRingUpItem - Looks an item up by item number, then by UPC, and checks it can be
-!   sold. On the first item of a sale it starts the invoice. Then it writes the sales
-!   line, updates the totals, and asks ScreenIO to redraw SALELINES. Nothing is
-!   redrawn when the item can't be added. Also used by the Search button.
+! fnRingUpItem - Splits off the quantity, looks the item up by item number, then by
+!   UPC, and checks it can be sold (fnSaleQtyOk). On the first item of a sale it
+!   starts the invoice. Then it writes the sales line, updates the totals, and asks
+!   ScreenIO to redraw SALELINES. Nothing is redrawn when the item can't be added.
 !
 ! fnTotalSale - Reads the current sale's lines: totals them into the invoice and
 !   Balance Due, and reports how many of one item are on the sale and the last line
@@ -16,6 +18,7 @@
 ! Files are opened by fnRegisterEnter (function\registerenter.brs).
 !
 ! #Include {registerenter}
+! #Include {saleqtyrules}
 
 def fnAddItemToSale(&FieldText$)
    if len(trim$(FieldText$)) then
@@ -25,8 +28,14 @@ def fnAddItemToSale(&FieldText$)
    let fnAddItemToSale=1
 fnend
 
-def fnRingUpItem(Entry$*255;___,ItemQty,LastLine)
+def fnRingUpItem(Entry$*255;___,ItemQty,LastLine,Qty,Star)
    let Entry$=uprc$(trim$(Entry$))
+   let Qty=1
+   let Star=pos(Entry$,"*")
+   if Star then
+      let Qty=val(Entry$(1:Star-1)) conv RingUpBadQty
+      let Entry$=trim$(Entry$(Star+1:len(Entry$)))
+   end if
    mat Inv$=("") : mat Inv=(0)
 
    if len(Entry$)>8 then goto RingUpTryUpc
@@ -47,14 +56,7 @@ def fnRingUpItem(Entry$*255;___,ItemQty,LastLine)
    end if
 
    let fnTotalSale(Inv$(IN_ITEMID),ItemQty,LastLine)
-   if Inv$(IN_ITEMTYPE)<>"S" and ItemQty>=Inv(IN_QTYONHAND) then
-      if Inv(IN_QTYONHAND)=1 then
-         let Msgbox(trim$(Inv$(IN_DESCRIPTION))&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
-      else
-         let Msgbox("We only have "&str$(Inv(IN_QTYONHAND))&" of "&trim$(Inv$(IN_DESCRIPTION))&" in stock, and all of them are already on this sale.","Not Enough Stock","OK","EXCL")
-      end if
-      goto RingUpDone
-   end if
+   if ~fnSaleQtyOk(Inv$(IN_ITEMTYPE),Qty,Inv(IN_QTYONHAND),ItemQty,Inv$(IN_DESCRIPTION)) then goto RingUpDone
 
    if trim$(F$(IV_INVOICENO))="" then
       if ~fnStartInvoice then goto RingUpDone
@@ -65,9 +67,9 @@ def fnRingUpItem(Entry$*255;___,ItemQty,LastLine)
    let Sales(SL_LINENO)=LastLine+1
    let Sales$(SL_ITEMID)=Inv$(IN_ITEMID)
    let Sales$(SL_DESCRIPTION)=Inv$(IN_DESCRIPTION)
-   let Sales(SL_QTY)=1
+   let Sales(SL_QTY)=Qty
    let Sales(SL_UNITPRICE)=Inv(IN_PRICE)
-   let Sales(SL_EXTENDED)=Inv(IN_PRICE)
+   let Sales(SL_EXTENDED)=round(Inv(IN_PRICE)*Qty,2)
    let Sales$(SL_TAXABLE)=Inv$(IN_TAXABLE)
    let Sales(SL_SALEDATE)=F(IV_INVDATE)
    write #SalesFile, using form$(SalesFile): mat Sales$, mat Sales
@@ -75,6 +77,9 @@ def fnRingUpItem(Entry$*255;___,ItemQty,LastLine)
    let fnTotalSale(Inv$(IN_ITEMID),ItemQty,LastLine)
    let RedrawScreens=1
    let fnRingUpItem=1
+   goto RingUpDone
+   RingUpBadQty: !
+   let Msgbox("I couldn't read the quantity in front of the *. Type it like this: 1.5*SVC0004","Quantity","OK","EXCL")
    RingUpDone: !
 fnend
 
