@@ -67,9 +67,9 @@ House style is in `context/app/conventions.md` (always-load). The short version:
 - Shipped support files at the root: `fileio.brs/.br`, `screenio.brs/.br`, `lexi.brs/.br`
   (used by ScreenIO's screen compile), `run.brs` (ScreenIO run-screen / tabbed-screen library) and
   `login.brs` (a web-login library, not part of the app). BR's config is `brconfig.sys` →
-  `settings.sys`, and BR starts in the app root. `brconfig.sys` has **no startup command yet**:
-  once `start.brs` exists and compiles, the owner and Claude will add it to `brconfig.sys`
-  together. Don't add it unilaterally.
+  `settings.sys`, and BR starts in the app root. `brconfig.sys` launches the app with
+  `execute "run start"` (added 2026-10-09 at the owner's request). The AI configs strip that line,
+  so headless runs don't start the register.
 - `context/app/exemplars/` and `context/app/examples/` hold ScreenIO archetypes and technique
   scripts carried over from an earlier app. Copy their shape, not their names; the data files and
   libraries they reference don't exist here.
