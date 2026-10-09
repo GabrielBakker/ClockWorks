@@ -20,7 +20,7 @@ that also bills clock repairs. Built from scratch on Lexi + FileIO + ScreenIO; h
 | `seeddata.brs` | utility | Loads the training sample data into an empty system |
 | **REGISTER** | ScreenIO screen, file `invoice` | The cash register: item entry, customer name and phone, totals, Pay / Complete / Void / New / Exit |
 | **SALELINES** | ScreenIO screen, file `sales` | Output-only listview of the current sale's lines, embedded in REGISTER as a child `screen` control. Clicking it activates Remove Line / Change Qty |
-| **ITEMSEARCH** | ScreenIO screen, file `inventory` | Full inventory listview used as a picker by REGISTER's Search button; returns the selected item number |
+| **ITEMSEARCH** | ScreenIO screen, file `inventory` | Full inventory listview used as a picker by REGISTER's magnifier (search) picture; returns the selected item number |
 | **TENDER** | ScreenIO screen, file `payment` | Payment entry with its own listview of payments applied; supports split tender |
 
 ScreenIO allows only one listview per screen, so each list lives on its own screen.
@@ -38,22 +38,30 @@ ScreenIO allows only one listview per screen, so each list lives on its own scre
 
 ## The sale flow
 
-1. **First item rung up:** take the next invoice number from `storecfg` and write an `invoice`
-   header with status `O`.
+1. **First item rung up:** take the next invoice number from `storecfg` and fill in REGISTER's
+   invoice fields (number, date, time, clerk, status `O`, tax rate). The header record itself is
+   only written when the sale is completed or voided.
 2. **Each item:** the clerk types an item number or scans a barcode into the item box. Its
-   **Validate** event looks the item up by item number, then by `UPC`. If it's found, active, and
-   not already fully on this sale, it writes a `sales` line (quantity 1, current price) and sets
-   `RedrawScreens=1` so SALELINES reloads. A failed lookup shows a `Msgbox` and **does not** redraw
-   (redrawing child screens is slow). The box is cleared after a successful add. The Search button
-   opens ITEMSEARCH and runs the chosen item number through the same path.
-3. **SALELINES** gets the invoice number through its control's function text,
+   **Validate** event (`{additemtosale}`) looks the item up by item number, then by `UPC`. If it's
+   found, active, and not already fully on this sale, it writes a `sales` line (quantity 1,
+   current price), updates the totals and Balance Due, and sets `RedrawScreens=1` so SALELINES
+   reloads. A failed lookup shows a `Msgbox` and **does not** redraw (redrawing child screens is
+   slow). Either way the box is cleared (`FieldText$=""`, return 1). The magnifier picture beside
+   the box (`{searchinventory}`) opens ITEMSEARCH and passes the chosen item number through the
+   same Validate function.
+3. **Leaving with items on the sale:** the Exit button is `let ExitMode=QuitOnly`, and REGISTER's
+   **Main Loop** (`{registermainloop}`) catches the exit: "Are you sure you want to quit?" Yes
+   deletes the sale's lines (and hands the invoice number back if no later sale took one); No
+   keeps the register open. The Exit event (`{registerexit}`) only closes files: it can't cancel
+   an exit.
+4. **SALELINES** gets the invoice number through its control's function text,
    `ParentKey$=F$(IV_INVOICENO)`, and its Filter shows only that invoice's lines.
-4. **Pay…** opens TENDER: the clerk picks Cash, Check or Card, an amount (defaulting to the balance)
+5. **Pay…** opens TENDER: the clerk picks Cash, Check or Card, an amount (defaulting to the balance)
    and a reference, then clicks Apply. Each application writes a `payment` record.
-5. **Complete Sale** (once the balance is zero or less): status becomes `P`, change due is shown,
+6. **Complete Sale** (once the balance is zero or less): status becomes `P`, change due is shown,
    and each clock or part line lowers `QTYONHAND` and sets `LASTSOLD`. **Inventory changes only
    here.** Service lines never touch stock. The screen then resets to a new sale.
-6. **Void** marks an open invoice `V` and keeps its lines for the audit trail. No inventory was
+7. **Void** marks an open invoice `V` and keeps its lines for the audit trail. No inventory was
    changed, so there's nothing to undo.
 
 ## Screen colors

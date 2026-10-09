@@ -46,9 +46,9 @@ def fnBuildSaleLines
    let fnCtl("LISTCHLD", "Field_ITEMID",     "ITEMID",      "Item",            1,  0,  8,  8,  1, "","LV1")
    let fnCtl("LISTCHLD", "Field_DESCRIPTION","DESCRIPTION", "Description",     1,  0, 40, 60,  1, "","LV1")
    let fnCtl("LISTCHLD", "Field_QTY",        "QTY",         "Qty",             1,  0,  5,  5,  1, "","LV1","R","N 5")
-   let fnCtl("LISTCHLD", "Field_UNITPRICE",  "UNITPRICE",   "Price",           1,  0, 10, 10,  1, "","LV1","R","N 10.2")
-   let fnCtl("LISTCHLD", "Field_DISCOUNT",   "DISCOUNT",    "Disc",            1,  0,  8, 10,  1, "","LV1","R","N 10.2")
-   let fnCtl("LISTCHLD", "Field_EXTENDED",   "EXTENDED",    "Amount",          1,  0, 10, 10,  1, "","LV1","R","N 10.2")
+   let fnCtl("LISTCHLD", "Field_UNITPRICE",  "UNITPRICE",   "Price",           1,  0, 10, 14,  1, "","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("LISTCHLD", "Field_DISCOUNT",   "DISCOUNT",    "Disc",            1,  0,  8, 14,  1, "","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("LISTCHLD", "Field_EXTENDED",   "EXTENDED",    "Amount",          1,  0, 10, 14,  1, "","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("LISTCHLD", "Field_TAXABLE",    "TAXABLE",     "Tx",              1,  0,  3,  1,  1, "","LV1","C")
 fnend
 
@@ -63,7 +63,7 @@ def fnBuildItemSearch
    let fnCtl("LISTCHLD", "Field_DESCRIPTION","DESCRIPTION", "Description",     1,  0, 32, 60,  1, "","LV1")
    let fnCtl("LISTCHLD", "Field_CATEGORY",   "CATEGORY",    "Category",        1,  0, 12, 12,  1, "","LV1")
    let fnCtl("LISTCHLD", "Field_MAKER",      "MAKER",       "Maker",           1,  0, 14, 30,  1, "","LV1")
-   let fnCtl("LISTCHLD", "Field_PRICE",      "PRICE",       "Price",           1,  0, 10, 10,  1, "","LV1","R","N 10.2")
+   let fnCtl("LISTCHLD", "Field_PRICE",      "PRICE",       "Price",           1,  0, 10, 14,  1, "","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("LISTCHLD", "Field_QTYONHAND",  "QTYONHAND",   "On Hand",         1,  0,  7,  5,  1, "","LV1","R","N 5")
    let fnCtl("button",   "SelectButton",     "",            "Select",         21, 76, 12,  6,  1, "let ExitMode=SelectAndQuit")
 fnend
@@ -78,8 +78,7 @@ def fnBuildRegister
 
    let fnCtl("caption", "Caption_ItemEntry", "",          "Item # / UPC:",                    4,  3, 14, 13,  1, "","","R")
    let fnCtl("C",       "ItemEntry",         "",          "Caption_ItemEntry",                4, 18, 16, 14,  1, "{additemtosale}")
-   let fnCtl("P",       "SearchIcon",        "",          "",                                 4, 34,  2,  0,  1, "{searchinventory}","","","",0,"images\search.png")
-   let fnCtl("button",  "SearchButton",      "",          "Search...",                        4, 36, 10,  9,  1, "{searchinventory}")
+   let fnCtl("P",       "SearchIcon",        "",          "",                                 4, 35,  2,  0,  1, "{searchinventory}","","","",0,"images\search.png")
    let fnCtl("caption", "Caption_CUSTNAME",  "",          "Customer:",                        4, 52, 10,  9,  1, "","","R")
    let fnCtl("C",       "Field_CUSTNAME",    "CUSTNAME",  "Caption_CUSTNAME",                 4, 63, 30, 40,  1, "")
    let fnCtl("caption", "Caption_CUSTPHONE", "",          "Phone:",                           5, 52, 10,  6,  1, "","","R")

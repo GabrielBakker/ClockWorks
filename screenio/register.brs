@@ -149,8 +149,8 @@
 05123 ! function\searchinventory.brs
 05124 ! Created on 10/09/2026
 05125 !
-05126 ! fnSearchInventory - Click event for REGISTER's Search button and its magnifier
-05127 !   picture. Shows the ITEMSEARCH list of items (Enter selects one) and passes the
+05126 ! fnSearchInventory - Click event for REGISTER's magnifier picture (its search
+05127 !   button). Shows the ITEMSEARCH list of items (Enter selects one) and passes the
 05128 !   chosen item number through the item box's own Validate function, exactly as if
 05129 !   it had been typed, so it is rung up the same way and the box is left blank.
 05130 !
@@ -268,22 +268,20 @@
 85002       let fnCheckStringFunction = 0
 85003    else if Function$ = "{searchinventory}" then
 85004       let fnCheckStringFunction = 0
-85005    else if Function$ = "{searchinventory}" then
-85006       let fnCheckStringFunction = 0
-85007       else if Function$ = "{registerenter}" then
+85005       else if Function$ = "{registerenter}" then
+85006          let fnCheckStringFunction = 0
+85007       else if Function$ = "{registermainloop}" then
 85008          let fnCheckStringFunction = 0
-85009       else if Function$ = "{registermainloop}" then
+85009       else if Function$ = "{registerexit}" then
 85010          let fnCheckStringFunction = 0
-85011       else if Function$ = "{registerexit}" then
-85012          let fnCheckStringFunction = 0
-85013       else
-85014          if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
-85015             print "Function ("&function$&") on screen REGISTER is not Supported: The library is out of date or fn not found."
-85016          end if
-85017       end if
-85018    fnend
-85019 !
-85020 !
+85011       else
+85012          if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
+85013             print "Function ("&function$&") on screen REGISTER is not Supported: The library is out of date or fn not found."
+85014          end if
+85015       end if
+85016    fnend
+85017 !
+85018 !
 89000    def library fnFunctionSwitch(Function$*255,mat Subscripts$,mat PassedData$,&FieldIndex,&FieldText$,&ControlIndex,&Key$,&ExitMode,&RepopulateListviews,&RedrawListviews,&CurrentField,&CurrentField$,&Prefix$,&CurrentKey$,&CurrentRec,&ParentKey$,&DataFile,Window,&CurrentRow,LockUser$,&Path$,&Selecting,mat Disk_F$,mat Disk_F,&OnRead,&TryToContinue,&DisplayOnly,&Active,&RedrawFrames,&RedrawScreens,&RepopulateCombo,mat F$,mat F, mat S$,mat CnvrtIn$,mat FieldsSSubs$,mat FieldsNSubs$,mat FieldName$,mat ControlName$,mat ScreenSubs$,mat Function$,mat SpecWidth,mat Form$,mat ScreenData$,mat ScreenLongData$,mat ScreenData,mat ReturnData$,mat ControlSpec$)
 89010       let fnFunctionSwitch = fnFS(Function$,mat Subscripts$,mat PassedData$,FieldIndex,FieldText$,ControlIndex,Key$,ExitMode,RepopulateListviews,RedrawListviews,CurrentField,CurrentField$,Prefix$,CurrentKey$,CurrentRec,ParentKey$,DataFile,Window,CurrentRow,LockUser$,Path$,Selecting,mat Disk_F$,mat Disk_F,OnRead,TryToContinue,DisplayOnly,Active,RedrawFrames,RedrawScreens,RepopulateCombo,mat F$,mat F, mat S$,mat CnvrtIn$,mat FieldsSSubs$,mat FieldsNSubs$,mat FieldName$,mat ControlName$,mat ScreenSubs$,mat Function$,mat SpecWidth,mat Form$,mat ScreenData$,mat ScreenLongData$,mat ScreenData,mat ReturnData$,mat ControlSpec$)
 89020    fnend
@@ -364,26 +362,24 @@
 92016       let ReturnValue = fnAddItemToSale(FieldText$)
 92017    else if Function$ = "{searchinventory}" then
 92018       let ReturnValue = fnSearchInventory
-92019    else if Function$ = "{searchinventory}" then
-92020       let ReturnValue = fnSearchInventory
-92021    else if Function$ = "{registerenter}" then
-92022       let ReturnValue = fnRegisterEnter(mat Form$)
-92023    else if Function$ = "{registermainloop}" then
-92024       let ReturnValue = fnRegisterMainloop
-92025    else if Function$ = "{registerexit}" then
-92026       let ReturnValue = fnRegisterExit
-92027    else
-92028       if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
-92029          print "Function ("&function$&") on screen REGISTER is not Supported: The library is out of date or fn not found."
-92030       end if
-92031    end if
-92032 !
-92033    if ~DataIsInside or Function$="{{GetData}}" then
-92034       let fnPushData(2)
-92035       let DataIsInside=0
-92036    end if
-92037 return
-92038 !
+92019    else if Function$ = "{registerenter}" then
+92020       let ReturnValue = fnRegisterEnter(mat Form$)
+92021    else if Function$ = "{registermainloop}" then
+92022       let ReturnValue = fnRegisterMainloop
+92023    else if Function$ = "{registerexit}" then
+92024       let ReturnValue = fnRegisterExit
+92025    else
+92026       if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
+92027          print "Function ("&function$&") on screen REGISTER is not Supported: The library is out of date or fn not found."
+92028       end if
+92029    end if
+92030 !
+92031    if ~DataIsInside or Function$="{{GetData}}" then
+92032       let fnPushData(2)
+92033       let DataIsInside=0
+92034    end if
+92035 return
+92036 !
 99000 OPEN: !   ***** Function  To Call Library Openfile And Proc Subs
 99010    def Fnopen(Filename$*255, Mat F$, Mat F, Mat Form$; Inputonly, Keynum, Dont_Sort_Subs, Path$*255, Mat Descr$, Mat Field_Widths,Supress_Prompt,Ignore_Errors,Suppress_Log,mat DateFmt$,___,Index)
 99020       dim _FileIOSubs$(1)*800, _loadedsubs$(1)*32
