@@ -168,96 +168,101 @@
 05142 ! fnRegisterEnter - Enter event for REGISTER. Opens the files the register's
 05143 !   functions use while a sale is rung up. fnRegisterExit closes them again.
 05144 !
-05145 dim Inv$(1)*1024, Inv(1), InvFile, InvUpcFile
-05146 dim Sales$(1)*1024, Sales(1), SalesFile
-05147 dim Cfg$(1)*1024, Cfg(1), CfgFile
-05148 !
-05149 def fnRegisterEnter(mat Form$)
-05150    let InvFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$,1)
-05151    let InvUpcFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$,1,4)
-05152    let SalesFile=fnOpen("sales",mat Sales$,mat Sales,mat Form$)
-05153    let CfgFile=fnOpen("storecfg",mat Cfg$,mat Cfg,mat Form$)
-05154 fnend
-05155 !
-05156 ! Imported From "function\registermainloop.brs"
-05157 ! function\registermainloop.brs
-05158 ! Created on 10/09/2026
-05159 !
-05160 ! fnRegisterMainloop - Main Loop event for REGISTER. When the clerk tries to leave
-05161 !   (Exit button, or the window's close X) while a sale has items on it, asks whether
-05162 !   to abandon the sale. Yes removes its lines from the sales file and quits; No keeps
-05163 !   the register open.
+05145 !   Inventory is opened OutIn, not input-only, even for lookups: ITEMSEARCH (opened
+05146 !   from the Search button) binds to inventory, and a ScreenIO screen opens its file
+05147 !   OutIn. BR refuses an OutIn open of a file this session already has open for
+05148 !   input (error 0608), so the OutIn open must come first.
+05149 !
+05150 dim Inv$(1)*1024, Inv(1), InvFile, InvUpcFile
+05151 dim Sales$(1)*1024, Sales(1), SalesFile
+05152 dim Cfg$(1)*1024, Cfg(1), CfgFile
+05153 !
+05154 def fnRegisterEnter(mat Form$)
+05155    let InvFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$)
+05156    let InvUpcFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$,0,4)
+05157    let SalesFile=fnOpen("sales",mat Sales$,mat Sales,mat Form$)
+05158    let CfgFile=fnOpen("storecfg",mat Cfg$,mat Cfg,mat Form$)
+05159 fnend
+05160 !
+05161 ! Imported From "function\registermainloop.brs"
+05162 ! function\registermainloop.brs
+05163 ! Created on 10/09/2026
 05164 !
-05165 !   ScreenIO's own AskSaveAndQuit can't do this: it doesn't know the sale's lines are
-05166 !   already in the sales file. And it has to be Main Loop: Main Loop runs after a
-05167 !   button has set ExitMode, so it can still cancel the exit, while the screen's Exit
-05168 !   event runs only once leaving is final. A cancelled key is reset the house way:
-05169 !   fkey(-1) unless the window was closed (93), Function=-1 and ExitMode=0.
-05170 !
-05171 ! fnAbandonSale - Deletes the current invoice's lines, and hands its invoice number
-05172 !   back if no later sale has taken a number since.
-05173 !
-05174 ! #Include {registerenter}
+05165 ! fnRegisterMainloop - Main Loop event for REGISTER. When the clerk tries to leave
+05166 !   (Exit button, or the window's close X) while a sale has items on it, asks whether
+05167 !   to abandon the sale. Yes removes its lines from the sales file and quits; No keeps
+05168 !   the register open.
+05169 !
+05170 !   ScreenIO's own AskSaveAndQuit can't do this: it doesn't know the sale's lines are
+05171 !   already in the sales file. And it has to be Main Loop: Main Loop runs after a
+05172 !   button has set ExitMode, so it can still cancel the exit, while the screen's Exit
+05173 !   event runs only once leaving is final. A cancelled key is reset the house way:
+05174 !   fkey(-1) unless the window was closed (93), Function=-1 and ExitMode=0.
 05175 !
-05176 def fnRegisterMainloop
-05177    if ExitMode and F$(IV_STATUS)="O" then
-05178       if 2==Msgbox("This sale has items on it. Are you sure you want to quit? They will be removed from the sale.","Quit This Sale?","yN","QST") then
-05179          let fnAbandonSale
-05180          let ExitMode=QuitOnly
-05181       else
-05182          if fkey<>93 then let fkey(-1)
-05183          let Function=-1
-05184          let ExitMode=0
-05185       end if
-05186    end if
-05187 fnend
-05188 !
-05189 def fnAbandonSale(;___,InvoiceNo$*8)
-05190    let InvoiceNo$=F$(IV_INVOICENO)
-05191    restore #SalesFile, key>=rpad$(InvoiceNo$,8)&chr$(0)&chr$(0): nokey AbandonLinesDone
-05192    do
-05193       read #SalesFile, using form$(SalesFile): mat Sales$, mat Sales eof AbandonLinesDone
-05194       if Sales$(SL_INVOICENO)<>InvoiceNo$ then exit do
-05195       delete #SalesFile:
-05196    loop
-05197    AbandonLinesDone: !
-05198 !
-05199    read #CfgFile, using form$(CfgFile), rec=1, reserve: mat Cfg$, mat Cfg norec AbandonNumberDone
-05200    if Cfg(CF_NEXTINVOICE)=val(InvoiceNo$)+1 then
-05201       let Cfg(CF_NEXTINVOICE)-=1
-05202       rewrite #CfgFile, using form$(CfgFile): mat Cfg$, mat Cfg
-05203    end if
-05204    release #CfgFile:
-05205    AbandonNumberDone: !
-05206 fnend
-05207 !
-05208 ! Imported From "function\registerexit.brs"
-05209 ! function\registerexit.brs
-05210 ! Created on 10/09/2026
-05211 !
-05212 ! fnRegisterExit - Exit event for REGISTER. Closes the files fnRegisterEnter opened.
-05213 !
-05214 def fnRegisterExit
-05215    if InvFile then
-05216       close #InvFile:
-05217       let InvFile=0
-05218    end if
-05219    if InvUpcFile then
-05220       close #InvUpcFile:
-05221       let InvUpcFile=0
-05222    end if
-05223    if SalesFile then
-05224       let fnCloseFile(SalesFile,"sales")
-05225       let SalesFile=0
-05226    end if
-05227    if CfgFile then
-05228       let fnCloseFile(CfgFile,"storecfg")
-05229       let CfgFile=0
-05230    end if
-05231 fnend
-05232 !
-05233 !
-05234 !
+05176 ! fnAbandonSale - Deletes the current invoice's lines, and hands its invoice number
+05177 !   back if no later sale has taken a number since.
+05178 !
+05179 ! #Include {registerenter}
+05180 !
+05181 def fnRegisterMainloop
+05182    if ExitMode and F$(IV_STATUS)="O" then
+05183       if 2==Msgbox("This sale has items on it. Are you sure you want to quit? They will be removed from the sale.","Quit This Sale?","yN","QST") then
+05184          let fnAbandonSale
+05185          let ExitMode=QuitOnly
+05186       else
+05187          if fkey<>93 then let fkey(-1)
+05188          let Function=-1
+05189          let ExitMode=0
+05190       end if
+05191    end if
+05192 fnend
+05193 !
+05194 def fnAbandonSale(;___,InvoiceNo$*8)
+05195    let InvoiceNo$=F$(IV_INVOICENO)
+05196    restore #SalesFile, key>=rpad$(InvoiceNo$,8)&chr$(0)&chr$(0): nokey AbandonLinesDone
+05197    do
+05198       read #SalesFile, using form$(SalesFile): mat Sales$, mat Sales eof AbandonLinesDone
+05199       if Sales$(SL_INVOICENO)<>InvoiceNo$ then exit do
+05200       delete #SalesFile:
+05201    loop
+05202    AbandonLinesDone: !
+05203 !
+05204    read #CfgFile, using form$(CfgFile), rec=1, reserve: mat Cfg$, mat Cfg norec AbandonNumberDone
+05205    if Cfg(CF_NEXTINVOICE)=val(InvoiceNo$)+1 then
+05206       let Cfg(CF_NEXTINVOICE)-=1
+05207       rewrite #CfgFile, using form$(CfgFile): mat Cfg$, mat Cfg
+05208    end if
+05209    release #CfgFile:
+05210    AbandonNumberDone: !
+05211 fnend
+05212 !
+05213 ! Imported From "function\registerexit.brs"
+05214 ! function\registerexit.brs
+05215 ! Created on 10/09/2026
+05216 !
+05217 ! fnRegisterExit - Exit event for REGISTER. Closes the files fnRegisterEnter opened.
+05218 !
+05219 def fnRegisterExit
+05220    if InvFile then
+05221       let fnCloseFile(InvFile,"inventory")
+05222       let InvFile=0
+05223    end if
+05224    if InvUpcFile then
+05225       let fnCloseFile(InvUpcFile,"inventory")
+05226       let InvUpcFile=0
+05227    end if
+05228    if SalesFile then
+05229       let fnCloseFile(SalesFile,"sales")
+05230       let SalesFile=0
+05231    end if
+05232    if CfgFile then
+05233       let fnCloseFile(CfgFile,"storecfg")
+05234       let CfgFile=0
+05235    end if
+05236 fnend
+05237 !
+05238 !
+05239 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{additemtosale}" then
 85002       let fnCheckStringFunction = 0

@@ -5,11 +5,11 @@
 !
 def fnRegisterExit
    if InvFile then
-      close #InvFile:
+      let fnCloseFile(InvFile,"inventory")
       let InvFile=0
    end if
    if InvUpcFile then
-      close #InvUpcFile:
+      let fnCloseFile(InvUpcFile,"inventory")
       let InvUpcFile=0
    end if
    if SalesFile then
