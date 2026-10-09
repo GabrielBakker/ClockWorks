@@ -580,6 +580,13 @@ designing a parent screen whose embedded child lists the parent record's detail 
   `ExitMode` again. To *refuse* an exit (unsaved work, a transaction in progress), use the **Main
   Loop** event: it runs after a button's function has set `ExitMode`, so it can still cancel with
   the three-statement pattern below.
+- **Open a screen's file OutIn in your own event code, even for lookups.** A ScreenIO screen
+  opens its bound file OutIn. If an event function opened that same file input-only first (say,
+  the calling screen's Enter event, for a lookup), opening the screen fails with BR error 0608,
+  "open permission conflict": once a file is open for input, every later open in the session
+  must be input too, so the OutIn open has to come first. Confirmed 2026-10-09: a register's
+  Search button failed this way until its Enter event opened the inventory file OutIn. An OutIn
+  open through FileIO also opens every key file, so close it with `fnCloseFile`, not `CLOSE`.
 - **A picture (`P`) control can be clicked.** Its `FUNCTION$` runs like a button's, so a
   magnifier icon beside a box can share a Search button's function.
 
