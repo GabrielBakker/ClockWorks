@@ -1,0 +1,22 @@
+data\invoice.dat, IV_, 0
+data\invoice.key, INVOICENO
+data\invoice.ky2, INVDATE/INVOICENO
+data\invoice.ky3, CUSTNAME-U
+====================================================================================================
+INVOICENO$,       Invoice Number,                           C 8,      ,                 1 -    8, 1 $
+INVDATE,          Invoice Date,                             BH 3,     DATE(Julian),     9 -   11, 1
+INVTIME$,         Invoice Time,                             C 8,      ,                12 -   19, 2 $
+CLERK$,           Sales Clerk,                              V 20,     ,                20 -   39, 3 $
+CUSTNAME$,        Customer Name,                            V 40,     ,                40 -   79, 4 $
+
+CUSTPHONE$,       Customer Phone,                           V 20,     ,                80 -   99, 5 $
+SUBTOTAL,         Subtotal,                                 PD 6.2,   ,               100 -  105, 2
+DISCOUNT,         Discount,                                 PD 6.2,   ,               106 -  111, 3
+TAXRATE,          Tax Rate,                                 PD 4.4,   ,               112 -  115, 4
+TAXAMT,           Sales Tax,                                PD 6.2,   ,               116 -  121, 5
+
+TOTAL,            Invoice Total,                            PD 6.2,   ,               122 -  127, 6
+AMTPAID,          Amount Tendered,                          PD 6.2,   ,               128 -  133, 7
+CHANGEDUE,        Change Given,                             PD 6.2,   ,               134 -  139, 8
+STATUS$,          Status: P=Paid V=Void,                    C 1,      ,               140 -  140, 6 $
+NOTES$,           Notes,                                    V 255,    ,               141 -  395, 7 $

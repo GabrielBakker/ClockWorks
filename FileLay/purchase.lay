@@ -1,0 +1,14 @@
+data\purchase.dat, PU_, 0
+data\purchase.key, PURCHASEID
+data\purchase.ky2, ITEMID/PURCHDATE
+====================================================================================================
+PURCHASEID$,      Purchase Number,                          C 8,      ,                 1 -    8, 1 $
+ITEMID$,          Item Number,                              C 8,      ,                 9 -   16, 2 $
+PURCHDATE,        Date Purchased,                           BH 3,     DATE(Julian),    17 -   19, 1
+SOURCE$,          Bought From (dealer estate auction),      V 40,     ,                20 -   59, 3 $
+SOURCEINFO$,      Seller Contact,                           V 60,     ,                60 -  119, 4 $
+
+QTY,              Quantity,                                 PD 4,     ,               120 -  123, 2
+UNITCOST,         Unit Cost,                                PD 6.2,   ,               124 -  129, 3
+TOTALCOST,        Total Cost,                               PD 6.2,   ,               130 -  135, 4
+NOTES$,           Notes,                                    V 255,    ,               136 -  390, 5 $

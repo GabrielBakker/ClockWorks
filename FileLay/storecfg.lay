@@ -1,0 +1,12 @@
+data\storecfg.dat, CF_, 0
+====================================================================================================
+STORENAME$,       Store Name,                               V 40,     ,                 1 -   40, 1 $
+ADDRESS1$,        Address Line 1,                           V 40,     ,                41 -   80, 2 $
+ADDRESS2$,        Address Line 2,                           V 40,     ,                81 -  120, 3 $
+CITYSTZIP$,       City State Zip,                           V 60,     ,               121 -  180, 4 $
+PHONE$,           Store Phone,                              V 20,     ,               181 -  200, 5 $
+
+TAXRATE,          Sales Tax Rate (0.0825 = 8.25%),          PD 4.4,   ,               201 -  204, 1
+NEXTINVOICE,      Next Invoice Number,                      PD 6,     ,               205 -  210, 2
+NEXTPURCHASE,     Next Purchase Number,                     PD 6,     ,               211 -  216, 3
+RECEIPTMSG$,      Receipt Footer Message,                   V 80,     ,               217 -  296, 6 $

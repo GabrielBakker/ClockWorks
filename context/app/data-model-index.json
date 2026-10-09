@@ -1,0 +1,108 @@
+{
+  "$comment": "Per-file section index over data-model.md. 'lines' are 1-based inclusive ranges for cheap per-file loading; regenerate with tools/gen_datamodel_index.exe.",
+  "generated": "2026-10-09",
+  "source": "data-model.md",
+  "source_sha256": "9bcd5d308e783b621efcf61fb02791d7e99e78be8f4c4b94cbb1aa600f6f8bf1",
+  "count": 9,
+  "files": [
+    {
+      "name": "emailcfg.lay",
+      "anchor": "emailcfg.lay",
+      "lines": [
+        29,
+        39
+      ],
+      "recl": null,
+      "fields": 4,
+      "keys": 0
+    },
+    {
+      "name": "inventory.lay",
+      "anchor": "inventory.lay",
+      "lines": [
+        41,
+        69
+      ],
+      "recl": null,
+      "fields": 18,
+      "keys": 3
+    },
+    {
+      "name": "invoice.lay",
+      "anchor": "invoice.lay",
+      "lines": [
+        71,
+        96
+      ],
+      "recl": null,
+      "fields": 15,
+      "keys": 3
+    },
+    {
+      "name": "payment.lay",
+      "anchor": "payment.lay",
+      "lines": [
+        98,
+        113
+      ],
+      "recl": null,
+      "fields": 6,
+      "keys": 2
+    },
+    {
+      "name": "purchase.lay",
+      "anchor": "purchase.lay",
+      "lines": [
+        115,
+        133
+      ],
+      "recl": null,
+      "fields": 9,
+      "keys": 2
+    },
+    {
+      "name": "sales.lay",
+      "anchor": "sales.lay",
+      "lines": [
+        135,
+        154
+      ],
+      "recl": null,
+      "fields": 10,
+      "keys": 2
+    },
+    {
+      "name": "screenfld.lay",
+      "anchor": "screenfld.lay",
+      "lines": [
+        156,
+        192
+      ],
+      "recl": null,
+      "fields": 27,
+      "keys": 2
+    },
+    {
+      "name": "screenio.lay",
+      "anchor": "screenio.lay",
+      "lines": [
+        194,
+        253
+      ],
+      "recl": null,
+      "fields": 51,
+      "keys": 1
+    },
+    {
+      "name": "storecfg.lay",
+      "anchor": "storecfg.lay",
+      "lines": [
+        255,
+        270
+      ],
+      "recl": null,
+      "fields": 9,
+      "keys": 0
+    }
+  ]
+}

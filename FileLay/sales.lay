@@ -1,0 +1,15 @@
+data\sales.dat, SL_, 0
+data\sales.key, INVOICENO/LINENO
+data\sales.ky2, ITEMID/SALEDATE
+====================================================================================================
+INVOICENO$,       Invoice Number,                           C 8,      ,                 1 -    8, 1 $
+LINENO,           Line Number,                              BH 2,     ,                 9 -   10, 1
+ITEMID$,          Item Number,                              C 8,      ,                11 -   18, 2 $
+DESCRIPTION$,     Description as Sold,                      V 60,     ,                19 -   78, 3 $
+QTY,              Quantity,                                 PD 4,     ,                79 -   82, 2
+
+UNITPRICE,        Unit Price,                               PD 6.2,   ,                83 -   88, 3
+DISCOUNT,         Line Discount,                            PD 6.2,   ,                89 -   94, 4
+EXTENDED,         Extended Amount,                          PD 6.2,   ,                95 -  100, 5
+TAXABLE$,         Taxable (Y/N),                            C 1,      ,               101 -  101, 4 $
+SALEDATE,         Sale Date,                                BH 3,     DATE(Julian),   102 -  104, 6

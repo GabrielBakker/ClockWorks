@@ -1,0 +1,26 @@
+data\inventory.dat, IN_, 0
+data\inventory.key, ITEMID
+data\inventory.ky2, DESCRIPTION-U
+data\inventory.ky3, CATEGORY-U/ITEMID
+====================================================================================================
+ITEMID$,          Item Number,                              C 8,      ,                 1 -    8, 1 $
+ITEMTYPE$,        Type: C=Clock P=Part S=Service,           C 1,      ,                 9 -    9, 2 $
+DESCRIPTION$,     Description,                              V 60,     ,                10 -   69, 3 $
+CATEGORY$,        Category (Mantel Wall Tall Case etc),     C 12,     ,                70 -   81, 4 $
+MAKER$,           Maker,                                    V 30,     ,                82 -  111, 5 $
+
+ORIGIN$,          Country of Origin,                        V 20,     ,               112 -  131, 6 $
+ERA$,             Era or Year Made,                         V 12,     ,               132 -  143, 7 $
+CONDITION$,       Condition,                                C 10,     ,               144 -  153, 8 $
+SERIALNO$,        Serial Number,                            V 20,     ,               154 -  173, 9 $
+LOCATION$,        Display Location,                         V 20,     ,               174 -  193, 10 $
+
+COST,             Unit Cost,                                PD 6.2,   ,               194 -  199, 1
+PRICE,            Retail Price,                             PD 6.2,   ,               200 -  205, 2
+QTYONHAND,        Quantity on Hand,                         PD 4,     ,               206 -  209, 3
+TAXABLE$,         Taxable (Y/N),                            C 1,      ,               210 -  210, 11 $
+STATUS$,          Status: A=Active H=Hold I=Inactive,       C 1,      ,               211 -  211, 12 $
+
+DATEADDED,        Date Added,                               BH 3,     DATE(Julian),   212 -  214, 4
+LASTSOLD,         Date Last Sold,                           BH 3,     DATE(Julian),   215 -  217, 5
+NOTES$,           Notes and Provenance,                     V 255,    ,               218 -  472, 13 $

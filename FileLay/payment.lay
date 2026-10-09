@@ -1,0 +1,11 @@
+data\payment.dat, PY_, 0
+data\payment.key, INVOICENO/SEQ
+data\payment.ky2, PAYDATE/METHOD
+====================================================================================================
+INVOICENO$,       Invoice Number,                           C 8,      ,                 1 -    8, 1 $
+SEQ,              Payment Sequence,                         BH 1,     ,                 9 -    9, 1
+PAYDATE,          Payment Date,                             BH 3,     DATE(Julian),    10 -   12, 2
+METHOD$,          Method: CASH CHECK CARD,                  C 6,      ,                13 -   18, 2 $
+AMOUNT,           Amount Applied,                           PD 6.2,   ,                19 -   24, 3
+
+REFERENCE$,       Check Number or Card Auth,                V 30,     ,                25 -   54, 3 $
