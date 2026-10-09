@@ -8,5 +8,6 @@
 
 # ClockWorks runtime output (recreate data files with: RUN initfiles)
 /initfiles.log
+/seeddata.log
 /data/*
 !/data/.gitkeep
