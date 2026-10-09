@@ -712,6 +712,11 @@ before you read that dump, so the raw CSV makes sense on sight:
 - A `LISTVIEW` with a **blank `FUNCTION$`** has no Filter function at all — every record in the
   bound file shows, unconditionally (the "bare listview" pattern; see §6 for what a non-blank
   Filter function's return value would otherwise control).
+- **An empty listview always shows one blank row.** When no record passes the filter,
+  `Fnpopulatealllistviews` prints a single row of empty values (`if ~Populatecolorudim then …
+  mat Populatedata$(1:Populatedataudim)=("")`) so the listview stays clickable (owner,
+  2026-10-09). Numeric columns with an `N`/`PIC` conversion show it as `0`/`0.00`. It disappears
+  once a real row is added — expected, not a filter bug.
 - `FGCOLOR$`/`BGCOLOR$` are fixed **6-character** fields — a short code like `"W"` (BR's system
   *window* colors: black text on a white field, not "white") is
   stored left-justified, **padded with trailing spaces to 6 chars**, not bare. Blank/inherited
