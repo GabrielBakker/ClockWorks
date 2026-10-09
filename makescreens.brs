@@ -144,6 +144,7 @@ def fnBuildRegister
    let fnCtl("button",  "PayButton",         "",          "Pay...",                          24,  3, 10,  6,  1, "{paysale}")
    let fnCtl("button",  "CompleteButton",    "",          "Complete Sale",                   24, 15, 16, 13,  1, "{completesale}")
    let fnCtl("button",  "VoidButton",        "",          "Void Sale",                       24, 33, 12,  9,  1, "{voidsale}")
+   let fnCtl("button",  "DayReportButton",   "",          "Day Report",                      24, 66, 14, 10,  1, "{dayreport}")
    let fnCtl("button",  "ExitButton",        "",          "Exit",                            24, 84, 10,  4,  1, "let ExitMode=QuitOnly")
 fnend
 

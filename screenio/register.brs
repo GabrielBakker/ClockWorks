@@ -285,167 +285,179 @@
 05259    end if
 05260 fnend
 05261 !
-05262 ! Imported From "function\registerenter.brs"
-05263 ! function\registerenter.brs
+05262 ! Imported From "function\dayreport.brs"
+05263 ! function\dayreport.brs
 05264 ! Created on 10/09/2026
 05265 !
-05266 ! fnRegisterEnter - Enter event for REGISTER. Opens the files the register's
-05267 !   functions use while a sale is rung up. fnRegisterExit closes them again.
+05266 ! fnDayReport - REGISTER's Day Report button. Prints today's end of day report
+05267 !   (printlib.brs) to a print preview, from which it can be printed.
 05268 !
-05269 !   Inventory is opened OutIn, not input-only, even for lookups: ITEMSEARCH (opened
-05270 !   from the Search button) binds to inventory, and a ScreenIO screen opens its file
-05271 !   OutIn. BR refuses an OutIn open of a file this session already has open for
-05272 !   input (error 0608), so the OutIn open must come first.
+05269 def fnDayReport
+05270    library "printlib" : fnPrintDayReport
+05271    let fnPrintDayReport(days(date$("ccyymmdd"),"ccyymmdd"))
+05272 fnend
 05273 !
-05274 dim Inv$(1)*1024, Inv(1), InvFile, InvUpcFile
-05275 dim Sales$(1)*1024, Sales(1), SalesFile
-05276 dim Cfg$(1)*1024, Cfg(1), CfgFile
-05277 dim Pay$(1)*1024, Pay(1), PayFile
-05278 !
-05279 def fnRegisterEnter(mat Form$)
-05280    let InvFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$)
-05281    let InvUpcFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$,0,4)
-05282    let SalesFile=fnOpen("sales",mat Sales$,mat Sales,mat Form$)
-05283    let CfgFile=fnOpen("storecfg",mat Cfg$,mat Cfg,mat Form$)
-05284    let PayFile=fnOpen("payment",mat Pay$,mat Pay,mat Form$)
-05285 fnend
-05286 !
-05287 ! Imported From "function\registermainloop.brs"
-05288 ! function\registermainloop.brs
-05289 ! Created on 10/09/2026
+05274 ! Imported From "function\registerenter.brs"
+05275 ! function\registerenter.brs
+05276 ! Created on 10/09/2026
+05277 !
+05278 ! fnRegisterEnter - Enter event for REGISTER. Opens the files the register's
+05279 !   functions use while a sale is rung up. fnRegisterExit closes them again.
+05280 !
+05281 !   Inventory is opened OutIn, not input-only, even for lookups: ITEMSEARCH (opened
+05282 !   from the Search button) binds to inventory, and a ScreenIO screen opens its file
+05283 !   OutIn. BR refuses an OutIn open of a file this session already has open for
+05284 !   input (error 0608), so the OutIn open must come first.
+05285 !
+05286 dim Inv$(1)*1024, Inv(1), InvFile, InvUpcFile
+05287 dim Sales$(1)*1024, Sales(1), SalesFile
+05288 dim Cfg$(1)*1024, Cfg(1), CfgFile
+05289 dim Pay$(1)*1024, Pay(1), PayFile
 05290 !
-05291 ! fnRegisterMainloop - Main Loop event for REGISTER. When the clerk tries to leave
-05292 !   (Exit button, or the window's close X) while a sale has items on it, asks whether
-05293 !   to abandon the sale. Yes removes its lines from the sales file and quits; No keeps
-05294 !   the register open. Once a payment has been taken the sale can't be abandoned
-05295 !   (the money must stay on record), so it has to be completed or voided instead.
-05296 !
-05297 !   ScreenIO's own AskSaveAndQuit can't do this: it doesn't know the sale's lines are
-05298 !   already in the sales file. And it has to be Main Loop: Main Loop runs after a
-05299 !   button has set ExitMode, so it can still cancel the exit, while the screen's Exit
-05300 !   event runs only once leaving is final. A cancelled key is reset the house way:
-05301 !   fkey(-1) unless the window was closed (93), Function=-1 and ExitMode=0.
+05291 def fnRegisterEnter(mat Form$)
+05292    let InvFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$)
+05293    let InvUpcFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$,0,4)
+05294    let SalesFile=fnOpen("sales",mat Sales$,mat Sales,mat Form$)
+05295    let CfgFile=fnOpen("storecfg",mat Cfg$,mat Cfg,mat Form$)
+05296    let PayFile=fnOpen("payment",mat Pay$,mat Pay,mat Form$)
+05297 fnend
+05298 !
+05299 ! Imported From "function\registermainloop.brs"
+05300 ! function\registermainloop.brs
+05301 ! Created on 10/09/2026
 05302 !
-05303 ! fnAbandonSale - Deletes the current invoice's lines, and hands its invoice number
-05304 !   back if no later sale has taken a number since.
-05305 !
-05306 !   While a sale is open it also re-totals the sale on every pass, so the totals
-05307 !   follow any line changed or removed inside SALELINES (Change Qty, Remove Line).
+05303 ! fnRegisterMainloop - Main Loop event for REGISTER. When the clerk tries to leave
+05304 !   (Exit button, or the window's close X) while a sale has items on it, asks whether
+05305 !   to abandon the sale. Yes removes its lines from the sales file and quits; No keeps
+05306 !   the register open. Once a payment has been taken the sale can't be abandoned
+05307 !   (the money must stay on record), so it has to be completed or voided instead.
 05308 !
-05309 ! #Include {registerenter}
-05310 ! #Include {additemtosale}
-05311 !
-05312 def fnRegisterMainloop(;___,ItemQty,LastLine)
-05313    if F$(IV_STATUS)="O" then let fnTotalSale("",ItemQty,LastLine)
-05314    if ExitMode and F$(IV_STATUS)="O" and F(IV_AMTPAID)>0 then
-05315       let Msgbox("Payments have been taken on this sale, so it can't just be dropped. Please complete it or void it.","Sale in Progress","OK","EXCL")
-05316       if fkey<>93 then let fkey(-1)
-05317       let Function=-1
-05318       let ExitMode=0
-05319    else if ExitMode and F$(IV_STATUS)="O" then
-05320       if 2==Msgbox("This sale has items on it. Are you sure you want to quit? They will be removed from the sale.","Quit This Sale?","yN","QST") then
-05321          let fnAbandonSale
-05322          let ExitMode=QuitOnly
-05323       else
-05324          if fkey<>93 then let fkey(-1)
-05325          let Function=-1
-05326          let ExitMode=0
-05327       end if
-05328    end if
-05329 fnend
-05330 !
-05331 def fnAbandonSale(;___,InvoiceNo$*8)
-05332    let InvoiceNo$=F$(IV_INVOICENO)
-05333    restore #SalesFile, key>=rpad$(InvoiceNo$,8)&chr$(0)&chr$(0): nokey AbandonLinesDone
-05334    do
-05335       read #SalesFile, using form$(SalesFile): mat Sales$, mat Sales eof AbandonLinesDone
-05336       if Sales$(SL_INVOICENO)<>InvoiceNo$ then exit do
-05337       delete #SalesFile:
-05338    loop
-05339    AbandonLinesDone: !
-05340 !
-05341    read #CfgFile, using form$(CfgFile), rec=1, reserve: mat Cfg$, mat Cfg norec AbandonNumberDone
-05342    if Cfg(CF_NEXTINVOICE)=val(InvoiceNo$)+1 then
-05343       let Cfg(CF_NEXTINVOICE)-=1
-05344       rewrite #CfgFile, using form$(CfgFile): mat Cfg$, mat Cfg
-05345    end if
-05346    release #CfgFile:
-05347    AbandonNumberDone: !
-05348 fnend
-05349 !
-05350 ! Imported From "function\registerexit.brs"
-05351 ! function\registerexit.brs
-05352 ! Created on 10/09/2026
-05353 !
-05354 ! fnRegisterExit - Exit event for REGISTER. Closes the files fnRegisterEnter opened.
-05355 !
-05356 def fnRegisterExit
-05357    if InvFile then
-05358       let fnCloseFile(InvFile,"inventory")
-05359       let InvFile=0
-05360    end if
-05361    if InvUpcFile then
-05362       let fnCloseFile(InvUpcFile,"inventory")
-05363       let InvUpcFile=0
-05364    end if
-05365    if SalesFile then
-05366       let fnCloseFile(SalesFile,"sales")
-05367       let SalesFile=0
-05368    end if
-05369    if PayFile then
-05370       let fnCloseFile(PayFile,"payment")
-05371       let PayFile=0
+05309 !   ScreenIO's own AskSaveAndQuit can't do this: it doesn't know the sale's lines are
+05310 !   already in the sales file. And it has to be Main Loop: Main Loop runs after a
+05311 !   button has set ExitMode, so it can still cancel the exit, while the screen's Exit
+05312 !   event runs only once leaving is final. A cancelled key is reset the house way:
+05313 !   fkey(-1) unless the window was closed (93), Function=-1 and ExitMode=0.
+05314 !
+05315 ! fnAbandonSale - Deletes the current invoice's lines, and hands its invoice number
+05316 !   back if no later sale has taken a number since.
+05317 !
+05318 !   While a sale is open it also re-totals the sale on every pass, so the totals
+05319 !   follow any line changed or removed inside SALELINES (Change Qty, Remove Line).
+05320 !
+05321 ! #Include {registerenter}
+05322 ! #Include {additemtosale}
+05323 !
+05324 def fnRegisterMainloop(;___,ItemQty,LastLine)
+05325    if F$(IV_STATUS)="O" then let fnTotalSale("",ItemQty,LastLine)
+05326    if ExitMode and F$(IV_STATUS)="O" and F(IV_AMTPAID)>0 then
+05327       let Msgbox("Payments have been taken on this sale, so it can't just be dropped. Please complete it or void it.","Sale in Progress","OK","EXCL")
+05328       if fkey<>93 then let fkey(-1)
+05329       let Function=-1
+05330       let ExitMode=0
+05331    else if ExitMode and F$(IV_STATUS)="O" then
+05332       if 2==Msgbox("This sale has items on it. Are you sure you want to quit? They will be removed from the sale.","Quit This Sale?","yN","QST") then
+05333          let fnAbandonSale
+05334          let ExitMode=QuitOnly
+05335       else
+05336          if fkey<>93 then let fkey(-1)
+05337          let Function=-1
+05338          let ExitMode=0
+05339       end if
+05340    end if
+05341 fnend
+05342 !
+05343 def fnAbandonSale(;___,InvoiceNo$*8)
+05344    let InvoiceNo$=F$(IV_INVOICENO)
+05345    restore #SalesFile, key>=rpad$(InvoiceNo$,8)&chr$(0)&chr$(0): nokey AbandonLinesDone
+05346    do
+05347       read #SalesFile, using form$(SalesFile): mat Sales$, mat Sales eof AbandonLinesDone
+05348       if Sales$(SL_INVOICENO)<>InvoiceNo$ then exit do
+05349       delete #SalesFile:
+05350    loop
+05351    AbandonLinesDone: !
+05352 !
+05353    read #CfgFile, using form$(CfgFile), rec=1, reserve: mat Cfg$, mat Cfg norec AbandonNumberDone
+05354    if Cfg(CF_NEXTINVOICE)=val(InvoiceNo$)+1 then
+05355       let Cfg(CF_NEXTINVOICE)-=1
+05356       rewrite #CfgFile, using form$(CfgFile): mat Cfg$, mat Cfg
+05357    end if
+05358    release #CfgFile:
+05359    AbandonNumberDone: !
+05360 fnend
+05361 !
+05362 ! Imported From "function\registerexit.brs"
+05363 ! function\registerexit.brs
+05364 ! Created on 10/09/2026
+05365 !
+05366 ! fnRegisterExit - Exit event for REGISTER. Closes the files fnRegisterEnter opened.
+05367 !
+05368 def fnRegisterExit
+05369    if InvFile then
+05370       let fnCloseFile(InvFile,"inventory")
+05371       let InvFile=0
 05372    end if
-05373    if CfgFile then
-05374       let fnCloseFile(CfgFile,"storecfg")
-05375       let CfgFile=0
+05373    if InvUpcFile then
+05374       let fnCloseFile(InvUpcFile,"inventory")
+05375       let InvUpcFile=0
 05376    end if
-05377 fnend
-05378 !
-05379 ! Imported From "function\saleqtyrules.brs"
-05380 ! function\saleqtyrules.brs
-05381 ! Created on 10/09/2026
-05382 !
-05383 ! fnSaleQtyOk - The rules for a quantity on a sales line, shared by the item box
-05384 !   (REGISTER) and Change Qty (QTYEDIT). Returns 1 if Qty is allowed; otherwise
-05385 !   explains why in a Msgbox and returns 0.
-05386 !
-05387 !   ItemType$     C=Clock, P=Part, S=Service (from the inventory record)
-05388 !   Qty           the quantity wanted on this line
-05389 !   OnHand        inventory quantity on hand (ignored for services, never stocked)
-05390 !   MaxPerSale    the most of this item one sale may have (0 means no limit), e.g. 1
-05391 !                 for a service charged per job
-05392 !   OtherQty      how many of this item are already on the sale on other lines
-05393 !   Description$  the item's description, for the messages
+05377    if SalesFile then
+05378       let fnCloseFile(SalesFile,"sales")
+05379       let SalesFile=0
+05380    end if
+05381    if PayFile then
+05382       let fnCloseFile(PayFile,"payment")
+05383       let PayFile=0
+05384    end if
+05385    if CfgFile then
+05386       let fnCloseFile(CfgFile,"storecfg")
+05387       let CfgFile=0
+05388    end if
+05389 fnend
+05390 !
+05391 ! Imported From "function\saleqtyrules.brs"
+05392 ! function\saleqtyrules.brs
+05393 ! Created on 10/09/2026
 05394 !
-05395 def fnSaleQtyOk(ItemType$,Qty,OnHand,MaxPerSale,OtherQty,Description$*60)
-05396    if Qty<=0 then
-05397       let Msgbox("The quantity has to be more than zero.","Quantity","OK","EXCL")
-05398    else if Qty>999.99 then
-05399       let Msgbox("The largest quantity a line can hold is 999.99.","Quantity","OK","EXCL")
-05400    else if round(Qty,2)<>Qty then
-05401       let Msgbox("Quantities can have at most two decimal places, for example 1.25 hours.","Quantity","OK","EXCL")
-05402    else if ItemType$<>"S" and int(Qty)<>Qty then
-05403       let Msgbox(trim$(Description$)&" is sold in whole numbers. Only labor and other services can have a fraction.","Quantity","OK","EXCL")
-05404    else if MaxPerSale and OtherQty+Qty>MaxPerSale then
-05405       if MaxPerSale=1 then
-05406          let Msgbox(trim$(Description$)&" is charged once per sale, and it's already on this sale.","Once per Sale","OK","EXCL")
-05407       else
-05408          let Msgbox("A sale can have at most "&str$(MaxPerSale)&" of "&trim$(Description$)&", and "&str$(OtherQty)&" are already on it.","Limit per Sale","OK","EXCL")
-05409       end if
-05410    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
-05411       if OnHand=1 then
-05412          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
-05413       else
-05414          let Msgbox("We only have "&str$(OnHand)&" of "&trim$(Description$)&" in stock, and "&str$(OtherQty)&" of them are already on this sale.","Not Enough Stock","OK","EXCL")
-05415       end if
-05416    else
-05417       let fnSaleQtyOk=1
-05418    end if
-05419 fnend
-05420 !
-05421 !
-05422 !
+05395 ! fnSaleQtyOk - The rules for a quantity on a sales line, shared by the item box
+05396 !   (REGISTER) and Change Qty (QTYEDIT). Returns 1 if Qty is allowed; otherwise
+05397 !   explains why in a Msgbox and returns 0.
+05398 !
+05399 !   ItemType$     C=Clock, P=Part, S=Service (from the inventory record)
+05400 !   Qty           the quantity wanted on this line
+05401 !   OnHand        inventory quantity on hand (ignored for services, never stocked)
+05402 !   MaxPerSale    the most of this item one sale may have (0 means no limit), e.g. 1
+05403 !                 for a service charged per job
+05404 !   OtherQty      how many of this item are already on the sale on other lines
+05405 !   Description$  the item's description, for the messages
+05406 !
+05407 def fnSaleQtyOk(ItemType$,Qty,OnHand,MaxPerSale,OtherQty,Description$*60)
+05408    if Qty<=0 then
+05409       let Msgbox("The quantity has to be more than zero.","Quantity","OK","EXCL")
+05410    else if Qty>999.99 then
+05411       let Msgbox("The largest quantity a line can hold is 999.99.","Quantity","OK","EXCL")
+05412    else if round(Qty,2)<>Qty then
+05413       let Msgbox("Quantities can have at most two decimal places, for example 1.25 hours.","Quantity","OK","EXCL")
+05414    else if ItemType$<>"S" and int(Qty)<>Qty then
+05415       let Msgbox(trim$(Description$)&" is sold in whole numbers. Only labor and other services can have a fraction.","Quantity","OK","EXCL")
+05416    else if MaxPerSale and OtherQty+Qty>MaxPerSale then
+05417       if MaxPerSale=1 then
+05418          let Msgbox(trim$(Description$)&" is charged once per sale, and it's already on this sale.","Once per Sale","OK","EXCL")
+05419       else
+05420          let Msgbox("A sale can have at most "&str$(MaxPerSale)&" of "&trim$(Description$)&", and "&str$(OtherQty)&" are already on it.","Limit per Sale","OK","EXCL")
+05421       end if
+05422    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
+05423       if OnHand=1 then
+05424          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
+05425       else
+05426          let Msgbox("We only have "&str$(OnHand)&" of "&trim$(Description$)&" in stock, and "&str$(OtherQty)&" of them are already on this sale.","Not Enough Stock","OK","EXCL")
+05427       end if
+05428    else
+05429       let fnSaleQtyOk=1
+05430    end if
+05431 fnend
+05432 !
+05433 !
+05434 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{additemtosale}" then
 85002       let fnCheckStringFunction = 0
@@ -457,20 +469,22 @@
 85008       let fnCheckStringFunction = 0
 85009    else if Function$ = "{voidsale}" then
 85010       let fnCheckStringFunction = 0
-85011       else if Function$ = "{registerenter}" then
-85012          let fnCheckStringFunction = 0
-85013       else if Function$ = "{registermainloop}" then
+85011    else if Function$ = "{dayreport}" then
+85012       let fnCheckStringFunction = 0
+85013       else if Function$ = "{registerenter}" then
 85014          let fnCheckStringFunction = 0
-85015       else if Function$ = "{registerexit}" then
+85015       else if Function$ = "{registermainloop}" then
 85016          let fnCheckStringFunction = 0
-85017       else
-85018          if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
-85019             print "Function ("&function$&") on screen REGISTER is not Supported: The library is out of date or fn not found."
-85020          end if
-85021       end if
-85022    fnend
-85023 !
-85024 !
+85017       else if Function$ = "{registerexit}" then
+85018          let fnCheckStringFunction = 0
+85019       else
+85020          if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
+85021             print "Function ("&function$&") on screen REGISTER is not Supported: The library is out of date or fn not found."
+85022          end if
+85023       end if
+85024    fnend
+85025 !
+85026 !
 89000    def library fnFunctionSwitch(Function$*255,mat Subscripts$,mat PassedData$,&FieldIndex,&FieldText$,&ControlIndex,&Key$,&ExitMode,&RepopulateListviews,&RedrawListviews,&CurrentField,&CurrentField$,&Prefix$,&CurrentKey$,&CurrentRec,&ParentKey$,&DataFile,Window,&CurrentRow,LockUser$,&Path$,&Selecting,mat Disk_F$,mat Disk_F,&OnRead,&TryToContinue,&DisplayOnly,&Active,&RedrawFrames,&RedrawScreens,&RepopulateCombo,mat F$,mat F, mat S$,mat CnvrtIn$,mat FieldsSSubs$,mat FieldsNSubs$,mat FieldName$,mat ControlName$,mat ScreenSubs$,mat Function$,mat SpecWidth,mat Form$,mat ScreenData$,mat ScreenLongData$,mat ScreenData,mat ReturnData$,mat ControlSpec$)
 89010       let fnFunctionSwitch = fnFS(Function$,mat Subscripts$,mat PassedData$,FieldIndex,FieldText$,ControlIndex,Key$,ExitMode,RepopulateListviews,RedrawListviews,CurrentField,CurrentField$,Prefix$,CurrentKey$,CurrentRec,ParentKey$,DataFile,Window,CurrentRow,LockUser$,Path$,Selecting,mat Disk_F$,mat Disk_F,OnRead,TryToContinue,DisplayOnly,Active,RedrawFrames,RedrawScreens,RepopulateCombo,mat F$,mat F, mat S$,mat CnvrtIn$,mat FieldsSSubs$,mat FieldsNSubs$,mat FieldName$,mat ControlName$,mat ScreenSubs$,mat Function$,mat SpecWidth,mat Form$,mat ScreenData$,mat ScreenLongData$,mat ScreenData,mat ReturnData$,mat ControlSpec$)
 89020    fnend
@@ -557,24 +571,26 @@
 92022       let ReturnValue = fnCompleteSale
 92023    else if Function$ = "{voidsale}" then
 92024       let ReturnValue = fnVoidSale
-92025    else if Function$ = "{registerenter}" then
-92026       let ReturnValue = fnRegisterEnter(mat Form$)
-92027    else if Function$ = "{registermainloop}" then
-92028       let ReturnValue = fnRegisterMainloop
-92029    else if Function$ = "{registerexit}" then
-92030       let ReturnValue = fnRegisterExit
-92031    else
-92032       if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
-92033          print "Function ("&function$&") on screen REGISTER is not Supported: The library is out of date or fn not found."
-92034       end if
-92035    end if
-92036 !
-92037    if ~DataIsInside or Function$="{{GetData}}" then
-92038       let fnPushData(2)
-92039       let DataIsInside=0
-92040    end if
-92041 return
-92042 !
+92025    else if Function$ = "{dayreport}" then
+92026       let ReturnValue = fnDayReport
+92027    else if Function$ = "{registerenter}" then
+92028       let ReturnValue = fnRegisterEnter(mat Form$)
+92029    else if Function$ = "{registermainloop}" then
+92030       let ReturnValue = fnRegisterMainloop
+92031    else if Function$ = "{registerexit}" then
+92032       let ReturnValue = fnRegisterExit
+92033    else
+92034       if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
+92035          print "Function ("&function$&") on screen REGISTER is not Supported: The library is out of date or fn not found."
+92036       end if
+92037    end if
+92038 !
+92039    if ~DataIsInside or Function$="{{GetData}}" then
+92040       let fnPushData(2)
+92041       let DataIsInside=0
+92042    end if
+92043 return
+92044 !
 99000 OPEN: !   ***** Function  To Call Library Openfile And Proc Subs
 99010    def Fnopen(Filename$*255, Mat F$, Mat F, Mat Form$; Inputonly, Keynum, Dont_Sort_Subs, Path$*255, Mat Descr$, Mat Field_Widths,Supress_Prompt,Ignore_Errors,Suppress_Log,mat DateFmt$,___,Index)
 99020       dim _FileIOSubs$(1)*800, _loadedsubs$(1)*32
