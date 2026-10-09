@@ -65,8 +65,7 @@ def fnBuildItemSearch
    let fnCtl("LISTCHLD", "Field_MAKER",      "MAKER",       "Maker",           1,  0, 14, 30,  1, "","LV1")
    let fnCtl("LISTCHLD", "Field_PRICE",      "PRICE",       "Price",           1,  0, 10, 10,  1, "","LV1","R","N 10.2")
    let fnCtl("LISTCHLD", "Field_QTYONHAND",  "QTYONHAND",   "On Hand",         1,  0,  7,  5,  1, "","LV1","R","N 5")
-   let fnCtl("button",   "SelectButton",     "",            "Select",         21, 60, 12,  6,  1, "let ExitMode=SelectAndQuit")
-   let fnCtl("button",   "CancelButton",     "",            "Cancel",         21, 76, 12,  6,  1, "let ExitMode=QuitOnly")
+   let fnCtl("button",   "SelectButton",     "",            "Select",         21, 76, 12,  6,  1, "let ExitMode=SelectAndQuit")
 fnend
 
 ! ----- REGISTER: the cash register (main screen) ------------------------------------
@@ -79,6 +78,7 @@ def fnBuildRegister
 
    let fnCtl("caption", "Caption_ItemEntry", "",          "Item # / UPC:",                    4,  3, 14, 13,  1, "","","R")
    let fnCtl("C",       "ItemEntry",         "",          "Caption_ItemEntry",                4, 18, 16, 14,  1, "{additemtosale}")
+   let fnCtl("P",       "SearchIcon",        "",          "",                                 4, 34,  2,  0,  1, "{searchinventory}","","","",0,"images\search.png")
    let fnCtl("button",  "SearchButton",      "",          "Search...",                        4, 36, 10,  9,  1, "{searchinventory}")
    let fnCtl("caption", "Caption_CUSTNAME",  "",          "Customer:",                        4, 52, 10,  9,  1, "","","R")
    let fnCtl("C",       "Field_CUSTNAME",    "CUSTNAME",  "Caption_CUSTNAME",                 4, 63, 30, 40,  1, "")
@@ -101,7 +101,7 @@ def fnBuildRegister
    let fnCtl("button",  "PayButton",         "",          "Pay...",                          24,  3, 10,  6,  1, "")
    let fnCtl("button",  "CompleteButton",    "",          "Complete Sale",                   24, 15, 16, 13,  1, "")
    let fnCtl("button",  "VoidButton",        "",          "Void Sale",                       24, 33, 12,  9,  1, "")
-   let fnCtl("button",  "ExitButton",        "",          "Exit",                            24, 84, 10,  4,  1, "{exitregister}")
+   let fnCtl("button",  "ExitButton",        "",          "Exit",                            24, 84, 10,  4,  1, "let ExitMode=QuitOnly")
 fnend
 
 ! Deletes any existing records for this screen, then writes its header record, with
