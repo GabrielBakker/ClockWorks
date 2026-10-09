@@ -73,3 +73,20 @@ House style is in `context/app/conventions.md` (always-load). The short version:
 - `context/app/exemplars/` and `context/app/examples/` hold ScreenIO archetypes and technique
   scripts carried over from an earlier app. Copy their shape, not their names; the data files and
   libraries they reference don't exist here.
+
+## Git workflow: app repo vs. the template (Basic-BR-Config)
+
+Each app is cloned from the **Basic-BR-Config** template and keeps its own history. The owner is
+new to git, so Claude runs the git mechanics and explains them.
+
+- `origin` is the app's own repo. `template` is Basic-BR-Config, **fetch only**: its push URL is
+  deliberately set to `DISABLED-...`. Never re-enable it.
+- App work (programs, screens, layouts, `data-model.md`, `architecture.md`, this file's app
+  description) is committed only to the app repo.
+- Lessons that change the **context kit** (`context/dev/`, `context/br_tree/`, `context/README.md`,
+  `context/ERRORS.md`, `context/app/conventions.md`, exemplars/examples, or this git-workflow
+  section) are committed **separately**, never mixed with app changes, with a message starting
+  `kit:`.
+- Promoting to the template happens only when the owner asks. In the template's own working copy
+  (`C:\Everything\Work\Training`), `git fetch` this app's folder, `git cherry-pick` the `kit:`
+  commits, show the owner the list, and push to Basic-BR-Config only after they approve.
