@@ -51,12 +51,13 @@
    let fnAddItem("PRT0003","P","Suspension Spring, Vienna Regulator","Parts","","","","New","","Back Room",4,14.50,10,"Y",60,"Merritt Clock Supply","")
    let fnAddItem("PRT0004","P","Clock Oil, Synthetic, 5 ml","Parts","","","","New","","Counter",6,15.95,25,"Y",60,"Merritt Clock Supply","")
 
-   ! ----- Repair services (billed at the register, never stocked, labor not taxed)
-   let fnAddItem("SVC0001","S","Clean & Oil Movement (Mantel or Wall)","Service","","","","","","",0,175,0,"N",0,"","Disassemble, clean, inspect, oil and regulate.")
-   let fnAddItem("SVC0002","S","Clean & Oil Movement (Tall Case)","Service","","","","","","",0,295,0,"N",0,"","Includes weights, pendulum and chime rods.")
-   let fnAddItem("SVC0003","S","Mainspring Replacement Labor","Service","","","","","","",0,85,0,"N",0,"","Spring sold separately.")
+   ! ----- Repair services (billed at the register, never stocked, labor not taxed).
+   !       Per-job services pass a last argument of 1: at most one per sale.
+   let fnAddItem("SVC0001","S","Clean & Oil Movement (Mantel or Wall)","Service","","","","","","",0,175,0,"N",0,"","Disassemble, clean, inspect, oil and regulate.",1)
+   let fnAddItem("SVC0002","S","Clean & Oil Movement (Tall Case)","Service","","","","","","",0,295,0,"N",0,"","Includes weights, pendulum and chime rods.",1)
+   let fnAddItem("SVC0003","S","Mainspring Replacement Labor","Service","","","","","","",0,85,0,"N",0,"","Spring sold separately.",1)
    let fnAddItem("SVC0004","S","Repair Labor, per Hour","Service","","","","","","",0,75,0,"N",0,"","")
-   let fnAddItem("SVC0005","S","House Call: Set Up Tall Case Clock","Service","","","","","","",0,125,0,"N",0,"","Delivery, leveling and beat setting within 25 miles.")
+   let fnAddItem("SVC0005","S","House Call: Set Up Tall Case Clock","Service","","","","","","",0,125,0,"N",0,"","Delivery, leveling and beat setting within 25 miles.",1)
 
    ! ----- Store settings (one record)
    let Storecfg$(CF_STORENAME)="ClockWorks Antique Clocks & Repair"
@@ -80,7 +81,7 @@ Finished: !
    stop
 
 ! Writes one inventory item, plus a purchase record for anything the store stocks.
-def fnAddItem(Id$,Type$,Desc$*60,Category$,Maker$*30,Origin$*20,Era$*12,Condition$,Serial$*20,Location$*20,Cost,Price,Qty,Taxable$,DaysAgo,Source$*40,Notes$*255)
+def fnAddItem(Id$,Type$,Desc$*60,Category$,Maker$*30,Origin$*20,Era$*12,Condition$,Serial$*20,Location$*20,Cost,Price,Qty,Taxable$,DaysAgo,Source$*40,Notes$*255;MaxPerSale)
    mat Inventory$=("") : mat Inventory=(0)
    let Inventory$(IN_ITEMID)=Id$
    let Inventory$(IN_ITEMTYPE)=Type$
@@ -95,6 +96,7 @@ def fnAddItem(Id$,Type$,Desc$*60,Category$,Maker$*30,Origin$*20,Era$*12,Conditio
    let Inventory(IN_COST)=Cost
    let Inventory(IN_PRICE)=Price
    let Inventory(IN_QTYONHAND)=Qty
+   let Inventory(IN_MAXPERSALE)=MaxPerSale
    let Inventory$(IN_TAXABLE)=Taxable$
    let Inventory$(IN_STATUS)="A"
    let Inventory(IN_DATEADDED)=Today-DaysAgo

@@ -28,7 +28,7 @@ def fnValidateSaleQty(&FieldText$;___,Qty,OtherQty,QeInvFile,QeSalesFile)
    ValidateQtyCounted: !
    let fnCloseFile(QeSalesFile,"sales")
 
-   let fnValidateSaleQty=fnSaleQtyOk(QeInv$(IN_ITEMTYPE),Qty,QeInv(IN_QTYONHAND),OtherQty,QeInv$(IN_DESCRIPTION))
+   let fnValidateSaleQty=fnSaleQtyOk(QeInv$(IN_ITEMTYPE),Qty,QeInv(IN_QTYONHAND),QeInv(IN_MAXPERSALE),OtherQty,QeInv$(IN_DESCRIPTION))
    goto ValidateQtyClose
    ValidateQtyNoItem: !
    let Msgbox("I couldn't find item "&trim$(F$(SL_ITEMID))&" in the inventory any more, so I can't check this quantity.","Item Not Found","OK","EXCL")

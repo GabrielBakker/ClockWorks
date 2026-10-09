@@ -2,7 +2,7 @@
   "$comment": "Per-file section index over data-model.md. 'lines' are 1-based inclusive ranges for cheap per-file loading; regenerate with tools/gen_datamodel_index.exe.",
   "generated": "2026-10-09",
   "source": "data-model.md",
-  "source_sha256": "4c88047e3eae47bfd27afb846a3d8bf63e00905debbd6b66e30f15d0e5f5639b",
+  "source_sha256": "11ca8977cde093e89a3022a7512c80c3ef296821241ffd1c548609c2bed99aca",
   "count": 9,
   "files": [
     {
@@ -21,18 +21,18 @@
       "anchor": "inventory.lay",
       "lines": [
         41,
-        71
+        72
       ],
       "recl": null,
-      "fields": 19,
+      "fields": 20,
       "keys": 4
     },
     {
       "name": "invoice.lay",
       "anchor": "invoice.lay",
       "lines": [
-        73,
-        98
+        74,
+        99
       ],
       "recl": null,
       "fields": 15,
@@ -42,8 +42,8 @@
       "name": "payment.lay",
       "anchor": "payment.lay",
       "lines": [
-        100,
-        115
+        101,
+        116
       ],
       "recl": null,
       "fields": 6,
@@ -53,8 +53,8 @@
       "name": "purchase.lay",
       "anchor": "purchase.lay",
       "lines": [
-        117,
-        135
+        118,
+        136
       ],
       "recl": null,
       "fields": 9,
@@ -64,8 +64,8 @@
       "name": "sales.lay",
       "anchor": "sales.lay",
       "lines": [
-        137,
-        156
+        138,
+        157
       ],
       "recl": null,
       "fields": 10,
@@ -75,8 +75,8 @@
       "name": "screenfld.lay",
       "anchor": "screenfld.lay",
       "lines": [
-        158,
-        194
+        159,
+        195
       ],
       "recl": null,
       "fields": 27,
@@ -86,8 +86,8 @@
       "name": "screenio.lay",
       "anchor": "screenio.lay",
       "lines": [
-        196,
-        255
+        197,
+        256
       ],
       "recl": null,
       "fields": 51,
@@ -97,8 +97,8 @@
       "name": "storecfg.lay",
       "anchor": "storecfg.lay",
       "lines": [
-        257,
-        272
+        258,
+        273
       ],
       "recl": null,
       "fields": 9,

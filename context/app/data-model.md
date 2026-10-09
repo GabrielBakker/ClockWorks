@@ -16,7 +16,7 @@ order you concatenate values to build a `KEY=` lookup), and every field with its
 | File | Recl | Fields | Keys |
 |---|---|---|---|
 | [`emailcfg.lay`](#emailcfg.lay) | ? | 4 | 0 |
-| [`inventory.lay`](#inventory.lay) | ? | 19 | 4 |
+| [`inventory.lay`](#inventory.lay) | ? | 20 | 4 |
 | [`invoice.lay`](#invoice.lay) | ? | 15 | 3 |
 | [`payment.lay`](#payment.lay) | ? | 6 | 2 |
 | [`purchase.lay`](#purchase.lay) | ? | 9 | 2 |
@@ -63,11 +63,12 @@ order you concatenate values to build a `KEY=` lookup), and every field with its
 | `COST` | PD 6.2 | 208-213 | Unit Cost |
 | `PRICE` | PD 6.2 | 214-219 | Retail Price |
 | `QTYONHAND` | PD 4 | 220-223 | Quantity on Hand |
-| `TAXABLE$` | C 1 | 224-224 | Taxable (Y/N) |
-| `STATUS$` | C 1 | 225-225 | Status: A=Active H=Hold I=Inactive |
-| `DATEADDED` | BH 3 | 226-228 | Date Added _(DATE(Julian))_ |
-| `LASTSOLD` | BH 3 | 229-231 | Date Last Sold _(DATE(Julian))_ |
-| `NOTES$` | V 255 | 232-486 | Notes and Provenance |
+| `MAXPERSALE` | PD 4 | 224-227 | Most per Sale (0 means no limit) |
+| `TAXABLE$` | C 1 | 228-228 | Taxable (Y/N) |
+| `STATUS$` | C 1 | 229-229 | Status: A=Active H=Hold I=Inactive |
+| `DATEADDED` | BH 3 | 230-232 | Date Added _(DATE(Julian))_ |
+| `LASTSOLD` | BH 3 | 233-235 | Date Last Sold _(DATE(Julian))_ |
+| `NOTES$` | V 255 | 236-490 | Notes and Provenance |
 
 <a id="invoice.lay"></a>
 ## invoice.lay

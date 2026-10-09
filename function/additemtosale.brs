@@ -56,7 +56,7 @@ def fnRingUpItem(Entry$*255;___,ItemQty,LastLine,Qty,Star)
    end if
 
    let fnTotalSale(Inv$(IN_ITEMID),ItemQty,LastLine)
-   if ~fnSaleQtyOk(Inv$(IN_ITEMTYPE),Qty,Inv(IN_QTYONHAND),ItemQty,Inv$(IN_DESCRIPTION)) then goto RingUpDone
+   if ~fnSaleQtyOk(Inv$(IN_ITEMTYPE),Qty,Inv(IN_QTYONHAND),Inv(IN_MAXPERSALE),ItemQty,Inv$(IN_DESCRIPTION)) then goto RingUpDone
 
    if trim$(F$(IV_INVOICENO))="" then
       if ~fnStartInvoice then goto RingUpDone

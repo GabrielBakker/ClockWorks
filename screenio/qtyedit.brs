@@ -56,7 +56,7 @@
 05030    ValidateQtyCounted: !
 05031    let fnCloseFile(QeSalesFile,"sales")
 05032 !
-05033    let fnValidateSaleQty=fnSaleQtyOk(QeInv$(IN_ITEMTYPE),Qty,QeInv(IN_QTYONHAND),OtherQty,QeInv$(IN_DESCRIPTION))
+05033    let fnValidateSaleQty=fnSaleQtyOk(QeInv$(IN_ITEMTYPE),Qty,QeInv(IN_QTYONHAND),QeInv(IN_MAXPERSALE),OtherQty,QeInv$(IN_DESCRIPTION))
 05034    goto ValidateQtyClose
 05035    ValidateQtyNoItem: !
 05036    let Msgbox("I couldn't find item "&trim$(F$(SL_ITEMID))&" in the inventory any more, so I can't check this quantity.","Item Not Found","OK","EXCL")
@@ -90,31 +90,39 @@
 05064 !   ItemType$     C=Clock, P=Part, S=Service (from the inventory record)
 05065 !   Qty           the quantity wanted on this line
 05066 !   OnHand        inventory quantity on hand (ignored for services, never stocked)
-05067 !   OtherQty      how many of this item are already on the sale on other lines
-05068 !   Description$  the item's description, for the messages
-05069 !
-05070 def fnSaleQtyOk(ItemType$,Qty,OnHand,OtherQty,Description$*60)
-05071    if Qty<=0 then
-05072       let Msgbox("The quantity has to be more than zero.","Quantity","OK","EXCL")
-05073    else if Qty>999.99 then
-05074       let Msgbox("The largest quantity a line can hold is 999.99.","Quantity","OK","EXCL")
-05075    else if round(Qty,2)<>Qty then
-05076       let Msgbox("Quantities can have at most two decimal places, for example 1.25 hours.","Quantity","OK","EXCL")
-05077    else if ItemType$<>"S" and int(Qty)<>Qty then
-05078       let Msgbox(trim$(Description$)&" is sold in whole numbers. Only labor and other services can have a fraction.","Quantity","OK","EXCL")
-05079    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
-05080       if OnHand=1 then
-05081          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
-05082       else
-05083          let Msgbox("We only have "&str$(OnHand)&" of "&trim$(Description$)&" in stock, and "&str$(OtherQty)&" of them are already on this sale.","Not Enough Stock","OK","EXCL")
-05084       end if
-05085    else
-05086       let fnSaleQtyOk=1
-05087    end if
-05088 fnend
-05089 !
-05090 !
-05091 !
+05067 !   MaxPerSale    the most of this item one sale may have (0 means no limit), e.g. 1
+05068 !                 for a service charged per job
+05069 !   OtherQty      how many of this item are already on the sale on other lines
+05070 !   Description$  the item's description, for the messages
+05071 !
+05072 def fnSaleQtyOk(ItemType$,Qty,OnHand,MaxPerSale,OtherQty,Description$*60)
+05073    if Qty<=0 then
+05074       let Msgbox("The quantity has to be more than zero.","Quantity","OK","EXCL")
+05075    else if Qty>999.99 then
+05076       let Msgbox("The largest quantity a line can hold is 999.99.","Quantity","OK","EXCL")
+05077    else if round(Qty,2)<>Qty then
+05078       let Msgbox("Quantities can have at most two decimal places, for example 1.25 hours.","Quantity","OK","EXCL")
+05079    else if ItemType$<>"S" and int(Qty)<>Qty then
+05080       let Msgbox(trim$(Description$)&" is sold in whole numbers. Only labor and other services can have a fraction.","Quantity","OK","EXCL")
+05081    else if MaxPerSale and OtherQty+Qty>MaxPerSale then
+05082       if MaxPerSale=1 then
+05083          let Msgbox(trim$(Description$)&" is charged once per sale, and it's already on this sale.","Once per Sale","OK","EXCL")
+05084       else
+05085          let Msgbox("A sale can have at most "&str$(MaxPerSale)&" of "&trim$(Description$)&", and "&str$(OtherQty)&" are already on it.","Limit per Sale","OK","EXCL")
+05086       end if
+05087    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
+05088       if OnHand=1 then
+05089          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
+05090       else
+05091          let Msgbox("We only have "&str$(OnHand)&" of "&trim$(Description$)&" in stock, and "&str$(OtherQty)&" of them are already on this sale.","Not Enough Stock","OK","EXCL")
+05092       end if
+05093    else
+05094       let fnSaleQtyOk=1
+05095    end if
+05096 fnend
+05097 !
+05098 !
+05099 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{validatesaleqty}" then
 85002       let fnCheckStringFunction = 0
