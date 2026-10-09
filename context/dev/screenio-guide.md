@@ -566,6 +566,23 @@ designing a parent screen whose embedded child lists the parent record's detail 
    the data changed. A barcode scanner (it types the code and presses Enter) therefore works
    through Validate too.
 
+**Validate, Exit and Main Loop: who can do what** (owner + `screenio.brs`, 2026-10-09):
+
+- **A Validate function's return value decides what happens to the typed text.** `1`/`"1"`
+  accepts the (possibly modified) `FieldText$`; `0`/`""` throws the typing away and puts back the
+  value that was there before. To always clear a box after acting on it (an item-entry box), set
+  `FieldText$=""` and return `1`, whether the action succeeded or not.
+- **Exit buttons use `let ExitMode=QuitOnly`** (or another exit mode), never a custom function;
+  ScreenIO then runs the screen's **Exit event** before closing. The Exit event is for cleanup,
+  such as closing files the Enter event opened.
+- **The Exit event can't cancel an exit.** `fnfm$` runs `Fnrunscreen` until `ExitMode` is set,
+  then `Fnclosescreen`, which runs the Exit event and closes the screen without looking at
+  `ExitMode` again. To *refuse* an exit (unsaved work, a transaction in progress), use the **Main
+  Loop** event: it runs after a button's function has set `ExitMode`, so it can still cancel with
+  the three-statement pattern below.
+- **A picture (`P`) control can be clicked.** Its `FUNCTION$` runs like a button's, so a
+  magnifier icon beside a box can share a Search button's function.
+
 **Enter and Esc on a listview screen** (verified in `screenio.brs`'s `Fnrespondtouseraction`,
 2026-10-09; an earlier belief that Enter depended on exit buttons turned out to be about Esc):
 
