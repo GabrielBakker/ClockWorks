@@ -22,6 +22,7 @@
    let Screenfld=Fnopen("screenfld",mat Screenfld$,mat Screenfld,mat Form$)
 
    let fnBuildSaleLines
+   let fnBuildItemSearch
    let fnBuildRegister
 
    let fnCloseFile(Screenio,"screenio")
@@ -51,17 +52,34 @@ def fnBuildSaleLines
    let fnCtl("LISTCHLD", "Field_TAXABLE",    "TAXABLE",     "Tx",              1,  0,  3,  1,  1, "","LV1","C")
 fnend
 
+! ----- ITEMSEARCH: pick an item from inventory (opened by REGISTER's Search) ---------
+def fnBuildItemSearch
+   let fnStartScreen("ITEMSEARCH","inventory",22,92,"FFFFFF","50331A",1,"Find an Item","Inventory picker for REGISTER's Search button. Returns the selected item number.")
+   !         Type        Name                Field          Text              Row Col Wid Spec Hgt Function
+   let fnCtl("P",        "SearchPic_1",      "",            "",                2,  3,  2,  0,  1, "","","","",0,"images\search.png")
+   let fnCtl("FILTER",   "",                 "",            "SearchPic_1",     2,  6, 50, 60,  1, "","LV1")
+   let fnCtl("LISTVIEW", "",                 "",            "",                4,  2, 88,  1, 16, "{itemsearchfilter}","LV1")
+   let fnCtl("LISTCHLD", "Field_ITEMID",     "ITEMID",      "Item",            1,  0,  8,  8,  1, "","LV1")
+   let fnCtl("LISTCHLD", "Field_DESCRIPTION","DESCRIPTION", "Description",     1,  0, 32, 60,  1, "","LV1")
+   let fnCtl("LISTCHLD", "Field_CATEGORY",   "CATEGORY",    "Category",        1,  0, 12, 12,  1, "","LV1")
+   let fnCtl("LISTCHLD", "Field_MAKER",      "MAKER",       "Maker",           1,  0, 14, 30,  1, "","LV1")
+   let fnCtl("LISTCHLD", "Field_PRICE",      "PRICE",       "Price",           1,  0, 10, 10,  1, "","LV1","R","N 10.2")
+   let fnCtl("LISTCHLD", "Field_QTYONHAND",  "QTYONHAND",   "On Hand",         1,  0,  7,  5,  1, "","LV1","R","N 5")
+   let fnCtl("button",   "SelectButton",     "",            "Select",         21, 60, 12,  6,  1, "let ExitMode=SelectAndQuit")
+   let fnCtl("button",   "CancelButton",     "",            "Cancel",         21, 76, 12,  6,  1, "let ExitMode=QuitOnly")
+fnend
+
 ! ----- REGISTER: the cash register (main screen) ------------------------------------
 def fnBuildRegister
-   let fnStartScreen("REGISTER","invoice",24,96,"FFFFFF","6B4423",1,"ClockWorks Register","The ClockWorks cash register. Opened by start.brs, one sale per call.")
+   let fnStartScreen("REGISTER","invoice",24,96,"FFFFFF","6B4423",1,"ClockWorks Register","The ClockWorks cash register. Opened by start.brs, one sale per call.","{registerenter}","{registerexit}","{registermainloop}")
    !         Type       Name                 Field        Text                               Row Col Wid Spec Hgt Function
    let fnCtl("caption", "Title",             "",          "ClockWorks Antique Clocks & Repair", 2,  3, 45, 34,  1, "")
    let fnCtl("caption", "Caption_INVOICENO", "",          "Invoice:",                         2, 66,  9,  8,  1, "","","R")
    let fnCtl("C",       "Field_INVOICENO",   "INVOICENO", "Caption_INVOICENO",                2, 76, 10,  8,  1, "","","","",1)
 
    let fnCtl("caption", "Caption_ItemEntry", "",          "Item # / UPC:",                    4,  3, 14, 13,  1, "","","R")
-   let fnCtl("C",       "ItemEntry",         "",          "Caption_ItemEntry",                4, 18, 16, 14,  1, "")
-   let fnCtl("button",  "SearchButton",      "",          "Search...",                        4, 36, 10,  9,  1, "")
+   let fnCtl("C",       "ItemEntry",         "",          "Caption_ItemEntry",                4, 18, 16, 14,  1, "{additemtosale}")
+   let fnCtl("button",  "SearchButton",      "",          "Search...",                        4, 36, 10,  9,  1, "{searchinventory}")
    let fnCtl("caption", "Caption_CUSTNAME",  "",          "Customer:",                        4, 52, 10,  9,  1, "","","R")
    let fnCtl("C",       "Field_CUSTNAME",    "CUSTNAME",  "Caption_CUSTNAME",                 4, 63, 30, 40,  1, "")
    let fnCtl("caption", "Caption_CUSTPHONE", "",          "Phone:",                           5, 52, 10,  6,  1, "","","R")
@@ -83,11 +101,12 @@ def fnBuildRegister
    let fnCtl("button",  "PayButton",         "",          "Pay...",                          24,  3, 10,  6,  1, "")
    let fnCtl("button",  "CompleteButton",    "",          "Complete Sale",                   24, 15, 16, 13,  1, "")
    let fnCtl("button",  "VoidButton",        "",          "Void Sale",                       24, 33, 12,  9,  1, "")
-   let fnCtl("button",  "ExitButton",        "",          "Exit",                            24, 84, 10,  4,  1, "let ExitMode=QuitOnly")
+   let fnCtl("button",  "ExitButton",        "",          "Exit",                            24, 84, 10,  4,  1, "{exitregister}")
 fnend
 
-! Deletes any existing records for this screen, then writes its header record.
-def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes$*255)
+! Deletes any existing records for this screen, then writes its header record, with
+! its Enter, Exit and Main Loop event functions if it has any.
+def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes$*255;EnterFn$*255,ExitFn$*255,LoopFn$*255)
    let CurrentScreen$=Code$
    let CaptionCount=TextboxCount=ButtonCount=ScreenCount=0
    let fnRemoveScreen(Code$)
@@ -98,6 +117,9 @@ def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes
    let Screenio$(SI_BGCOLOR)=rpad$(Bg$,6)
    let Screenio$(SI_WINDCAP)=WindCap$
    let Screenio$(SI_NOTES)=Notes$
+   let Screenio$(SI_ENTERFN)=EnterFn$
+   let Screenio$(SI_EXITFN)=ExitFn$
+   let Screenio$(SI_LOOPFN)=LoopFn$
    let Screenio$(SI_CREATEUSER)=Screenio$(SI_MODIFYUSER)="Claude"
    let Screenio(SI_VSIZE)=Rows
    let Screenio(SI_HSIZE)=Cols
@@ -122,10 +144,11 @@ def fnRemoveScreen(Code$*18)
    ControlsDone: !
 fnend
 
-! Writes one control record for the screen being built. Text boxes, buttons and
-! listviews get the "W" system colors (black on white). Captions, listview columns and
-! child screens are left blank, so captions inherit the screen's own FGCOLOR (white).
-def fnCtl(Type$,Name$*50,Field$*50,Text$*255,Row,Col,Width,Spec,Height,Function$*255;Parent$*20,Justify$,CnvrtIn$*255,Protected)
+! Writes one control record for the screen being built. Text boxes, buttons, filter
+! boxes and listviews get the "W" system colors (black on white). Captions, pictures,
+! listview columns and child screens are left blank, so captions inherit the
+! screen's own FGCOLOR (white).
+def fnCtl(Type$,Name$*50,Field$*50,Text$*255,Row,Col,Width,Spec,Height,Function$*255;Parent$*20,Justify$,CnvrtIn$*255,Protected,Picture$*255)
    mat Screenfld$=("") : mat Screenfld=(0)
    if Parent$="" then
       #Select# Type$ #Case# "caption"
@@ -151,7 +174,8 @@ def fnCtl(Type$,Name$*50,Field$*50,Text$*255,Row,Col,Width,Spec,Height,Function$
    let Screenfld$(SF_PARENT)=Parent$
    let Screenfld$(SF_JUSTIFY)=Justify$
    let Screenfld$(SF_CNVRTIN)=CnvrtIn$
-   if Type$="C" or Type$="button" or Type$="LISTVIEW" then
+   let Screenfld$(SF_PICTURE)=Picture$
+   if Type$="C" or Type$="button" or Type$="LISTVIEW" or Type$="FILTER" then
       let Screenfld$(SF_FGCOLOR)=Screenfld$(SF_BGCOLOR)="W     "
    else
       let Screenfld$(SF_FGCOLOR)=Screenfld$(SF_BGCOLOR)="      "
