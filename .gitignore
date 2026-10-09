@@ -12,3 +12,4 @@
 /makescreens.log
 /data/*
 !/data/.gitkeep
+/tempfile*.brs
