@@ -136,7 +136,11 @@ Two kinds of content, both load-bearing:
   - `/* ... */` — multi-line comment, rewritten to ordinary `!` comments.
   - `X$&="..."` — rewritten to `X$(INF:0)="..."` (**not** `X$=X$&"..."` — Lexi emits the
     corruption-safe append idiom directly; see §4's self-concatenation gotcha for why that
-    matters).
+    matters). The numeric compound forms **`+=`, `-=`, `*=`, `/=` are native BR, not Lexi**:
+    Lexi passes them through unchanged, and BR runs them directly (confirmed 2026-10-09 on the
+    kit's 4.33c: `X=5`, `X+=1`, `X-=2`, `X*=3` gives 12; see
+    [LET](statement-semantics.md#let--variable-assignment-multiple-and-compound-forms)). They're
+    fine in Lexi source and in plain BR alike.
   - **`#Select# expr #Case# value ... #Case# value2 ... #End Select#`** — the `#` signs are
     **required**; this is Lexi's real syntax for a case/switch-style branch, confirmed to
     translate line-for-line into `IF expr = value THEN ... ELSE IF expr = value2 THEN ... END

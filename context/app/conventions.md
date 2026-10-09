@@ -53,14 +53,28 @@ source as anywhere else.
 
 ## 2. File access: FileIO is the house library, not raw keyed I/O
 
-`library "fileio" : fnOpenFile` — usually through a per-file local wrapper, conventionally named
-`Fnopen`/`fnopen` — is how app code opens data files. In the reference app essentially all data
+`library "fileio" : fnOpenFile`, always called through the local `Fnopen` wrapper below, is how
+app code opens data files. In the reference app essentially all data
 access went this way; raw keyed `OPEN ... KFNAME=` appeared only in FileIO's own implementation,
 copy-paste starter templates under `FileLay/template/`, and narrow low-level helpers needing
 something FileIO doesn't expose (e.g. counting records via a raw `RELATIVE` open).
 
-**Rule:** use FileIO (`fnopen`/`fnOpenFile`, or the file's existing local wrapper) for all data
-file access in app code. Raw keyed `OPEN`/`KFNAME=` is reserved for the rare utility that needs
+**Rule:** use FileIO for all data file access in app code, and **always open files through the
+local `Fnopen` wrapper — never call `fnOpenFile` directly** (owner's rule, 2026-10-09). The
+wrapper is copied into each program verbatim:
+
+```
+OPEN: ! ***** Function To Call Library Openfile And Proc Subs  #Autonumber# 99000,10
+   def Fnopen(Filename$*255, Mat F$, Mat F, Mat Form$; Inputonly, Keynum, Dont_Sort_Subs, Path$*255, Mat Descr$, Mat Field_Widths,Supress_Prompt,Ignore_Errors,Suppress_Log,mat DateFmt$,___,Index)
+      dim _FileIOSubs$(1)*800, _Loadedsubs$(1)*80
+      let Fnopen=Fnopenfile(Filename$, Mat F$, Mat F, Mat Form$, Inputonly, Keynum, Dont_Sort_Subs, Path$, Mat Descr$, Mat Field_Widths, Mat _FileIOSubs$, Supress_Prompt,Ignore_Errors,Program$,Suppress_Log,mat DateFmt$)
+      if Srch(_Loadedsubs$,Uprc$(Filename$))<=0 then : mat _Loadedsubs$(Udim(_Loadedsubs$)+1) : let _Loadedsubs$(Udim(_Loadedsubs$))=Uprc$(Filename$) : for Index=1 to Udim(Mat _Fileiosubs$) : execute (_Fileiosubs$(Index)) : next Index
+   fnend
+```
+
+It executes the subscript assignments FileIO returns (`IN_ITEMID`, ...) exactly once per layout,
+and it passes every by-reference argument as a variable. Calling `fnOpenFile` directly with a
+literal such as `""` for `Path$` fails with BR error 0303, "cannot pass a literal by reference". Raw keyed `OPEN`/`KFNAME=` is reserved for the rare utility that needs
 file-level access FileIO doesn't provide — it is not a normal alternative for reading app data.
 
 ## 3. Error handling: trailing I/O clauses, not ON ERROR handlers
