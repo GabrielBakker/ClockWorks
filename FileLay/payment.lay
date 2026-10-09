@@ -1,4 +1,4 @@
-data\payment.dat, PY_, 0
+data\payment.dat, PY_, 1
 data\payment.key, INVOICENO/SEQ
 data\payment.ky2, PAYDATE/METHOD
 ====================================================================================================

@@ -1,4 +1,4 @@
-data\storecfg.dat, CF_, 0
+data\storecfg.dat, CF_, 1
 ====================================================================================================
 STORENAME$,       Store Name,                               V 40,     ,                 1 -   40, 1 $
 ADDRESS1$,        Address Line 1,                           V 40,     ,                41 -   80, 2 $

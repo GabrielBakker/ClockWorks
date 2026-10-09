@@ -1,4 +1,4 @@
-data\invoice.dat, IV_, 0
+data\invoice.dat, IV_, 2
 data\invoice.key, INVOICENO
 data\invoice.ky2, INVDATE/INVOICENO
 data\invoice.ky3, CUSTNAME-U
@@ -18,5 +18,5 @@ TAXAMT,           Sales Tax,                                PD 6.2,   ,         
 TOTAL,            Invoice Total,                            PD 6.2,   ,               122 -  127, 6
 AMTPAID,          Amount Tendered,                          PD 6.2,   ,               128 -  133, 7
 CHANGEDUE,        Change Given,                             PD 6.2,   ,               134 -  139, 8
-STATUS$,          Status: P=Paid V=Void,                    C 1,      ,               140 -  140, 6 $
+STATUS$,          Status: O=Open P=Paid V=Void,             C 1,      ,               140 -  140, 6 $
 NOTES$,           Notes,                                    V 255,    ,               141 -  395, 7 $

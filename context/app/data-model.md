@@ -16,7 +16,7 @@ order you concatenate values to build a `KEY=` lookup), and every field with its
 | File | Recl | Fields | Keys |
 |---|---|---|---|
 | [`emailcfg.lay`](#emailcfg.lay) | ? | 4 | 0 |
-| [`inventory.lay`](#inventory.lay) | ? | 18 | 3 |
+| [`inventory.lay`](#inventory.lay) | ? | 19 | 4 |
 | [`invoice.lay`](#invoice.lay) | ? | 15 | 3 |
 | [`payment.lay`](#payment.lay) | ? | 6 | 2 |
 | [`purchase.lay`](#purchase.lay) | ? | 9 | 2 |
@@ -45,27 +45,29 @@ order you concatenate values to build a `KEY=` lookup), and every field with its
   - `key` (`data\inventory.key`) = `ITEMID`
   - `ky2` (`data\inventory.ky2`) = `DESCRIPTION-U`
   - `ky3` (`data\inventory.ky3`) = `CATEGORY-U` + `ITEMID`
+  - `ky4` (`data\inventory.ky4`) = `UPC`
 
 | Field | Type | Pos | Description |
 |---|---|---|---|
 | `ITEMID$` | C 8 | 1-8 | Item Number |
-| `ITEMTYPE$` | C 1 | 9-9 | Type: C=Clock P=Part S=Service |
-| `DESCRIPTION$` | V 60 | 10-69 | Description |
-| `CATEGORY$` | C 12 | 70-81 | Category (Mantel Wall Tall Case etc) |
-| `MAKER$` | V 30 | 82-111 | Maker |
-| `ORIGIN$` | V 20 | 112-131 | Country of Origin |
-| `ERA$` | V 12 | 132-143 | Era or Year Made |
-| `CONDITION$` | C 10 | 144-153 | Condition |
-| `SERIALNO$` | V 20 | 154-173 | Serial Number |
-| `LOCATION$` | V 20 | 174-193 | Display Location |
-| `COST` | PD 6.2 | 194-199 | Unit Cost |
-| `PRICE` | PD 6.2 | 200-205 | Retail Price |
-| `QTYONHAND` | PD 4 | 206-209 | Quantity on Hand |
-| `TAXABLE$` | C 1 | 210-210 | Taxable (Y/N) |
-| `STATUS$` | C 1 | 211-211 | Status: A=Active H=Hold I=Inactive |
-| `DATEADDED` | BH 3 | 212-214 | Date Added _(DATE(Julian))_ |
-| `LASTSOLD` | BH 3 | 215-217 | Date Last Sold _(DATE(Julian))_ |
-| `NOTES$` | V 255 | 218-472 | Notes and Provenance |
+| `UPC$` | C 14 | 9-22 | UPC or Barcode |
+| `ITEMTYPE$` | C 1 | 23-23 | Type: C=Clock P=Part S=Service |
+| `DESCRIPTION$` | V 60 | 24-83 | Description |
+| `CATEGORY$` | C 12 | 84-95 | Category (Mantel Wall Tall Case etc) |
+| `MAKER$` | V 30 | 96-125 | Maker |
+| `ORIGIN$` | V 20 | 126-145 | Country of Origin |
+| `ERA$` | V 12 | 146-157 | Era or Year Made |
+| `CONDITION$` | C 10 | 158-167 | Condition |
+| `SERIALNO$` | V 20 | 168-187 | Serial Number |
+| `LOCATION$` | V 20 | 188-207 | Display Location |
+| `COST` | PD 6.2 | 208-213 | Unit Cost |
+| `PRICE` | PD 6.2 | 214-219 | Retail Price |
+| `QTYONHAND` | PD 4 | 220-223 | Quantity on Hand |
+| `TAXABLE$` | C 1 | 224-224 | Taxable (Y/N) |
+| `STATUS$` | C 1 | 225-225 | Status: A=Active H=Hold I=Inactive |
+| `DATEADDED` | BH 3 | 226-228 | Date Added _(DATE(Julian))_ |
+| `LASTSOLD` | BH 3 | 229-231 | Date Last Sold _(DATE(Julian))_ |
+| `NOTES$` | V 255 | 232-486 | Notes and Provenance |
 
 <a id="invoice.lay"></a>
 ## invoice.lay
@@ -91,7 +93,7 @@ order you concatenate values to build a `KEY=` lookup), and every field with its
 | `TOTAL` | PD 6.2 | 122-127 | Invoice Total |
 | `AMTPAID` | PD 6.2 | 128-133 | Amount Tendered |
 | `CHANGEDUE` | PD 6.2 | 134-139 | Change Given |
-| `STATUS$` | C 1 | 140-140 | Status: P=Paid V=Void |
+| `STATUS$` | C 1 | 140-140 | Status: O=Open P=Paid V=Void |
 | `NOTES$` | V 255 | 141-395 | Notes |
 
 <a id="payment.lay"></a>

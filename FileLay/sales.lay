@@ -1,4 +1,4 @@
-data\sales.dat, SL_, 0
+data\sales.dat, SL_, 1
 data\sales.key, INVOICENO/LINENO
 data\sales.ky2, ITEMID/SALEDATE
 ====================================================================================================
