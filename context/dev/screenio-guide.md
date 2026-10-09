@@ -566,6 +566,23 @@ designing a parent screen whose embedded child lists the parent record's detail 
    the data changed. A barcode scanner (it types the code and presses Enter) therefore works
    through Validate too.
 
+**Enter and Esc on a listview screen** (verified in `screenio.brs`'s `Fnrespondtouseraction`,
+2026-10-09; an earlier belief that Enter depended on exit buttons turned out to be about Esc):
+
+- **Enter always selects and exits** on a screen with its own listview control:
+  `if Function=0 then if fnTheresAListview(mat FieldType$) then ExitMode=SelectAndQuit`. Select,
+  Cancel or other exit buttons make no difference.
+- **Esc is the key that checks for exit buttons.** If any control's function contains both
+  `exitmode` and `quitonly` (`Fnsearchclosely`), Esc sets no exit mode at all, leaving exiting to
+  that button. The main loop likewise skips saving pending changes on Esc in that case. Without
+  such a button, Esc quits a listview screen (`QuitOnly`) or asks to save on an edit screen.
+- **To give Enter another meaning** (e.g. open the selected row in an edit screen instead of
+  selecting it), use the **Main Loop** event. The owner's SageLive technique: in the Main Loop
+  function, act on Enter and then call `fkey(-1)`. Note the ordering in the source: the Main Loop
+  event runs **last** in `Fnrespondtouseraction`, *after* Enter has already set
+  `ExitMode=SelectAndQuit`, so the handler must also set `ExitMode=0` to keep the screen open.
+  `ExitMode` is passed to event functions by reference.
+
 <a id="authoring"></a>
 ## 9. Authoring a new screen programmatically (writing `screenio.dat`/`screenfld.dat` directly)
 
