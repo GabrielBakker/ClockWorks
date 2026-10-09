@@ -576,12 +576,22 @@ designing a parent screen whose embedded child lists the parent record's detail 
   `exitmode` and `quitonly` (`Fnsearchclosely`), Esc sets no exit mode at all, leaving exiting to
   that button. The main loop likewise skips saving pending changes on Esc in that case. Without
   such a button, Esc quits a listview screen (`QuitOnly`) or asks to save on an edit screen.
-- **To give Enter another meaning** (e.g. open the selected row in an edit screen instead of
-  selecting it), use the **Main Loop** event. The owner's SageLive technique: in the Main Loop
-  function, act on Enter and then call `fkey(-1)`. Note the ordering in the source: the Main Loop
-  event runs **last** in `Fnrespondtouseraction`, *after* Enter has already set
-  `ExitMode=SelectAndQuit`, so the handler must also set `ExitMode=0` to keep the screen open.
-  `ExitMode` is passed to event functions by reference.
+- **To give Enter (or any key) another meaning** — e.g. open the selected row in an edit screen
+  instead of selecting it — use the **Main Loop** event. It runs **last** in
+  `Fnrespondtouseraction`, *after* Enter has already set `ExitMode=SelectAndQuit`, so the handler
+  has to cancel that. The owner's production pattern (confirmed in a real app's Main Loop
+  functions, 2026-10-09) does three things after acting on the key:
+  ```
+  if fkey=0 then
+     ! ... act on Enter, e.g. let fnfm("someedit",CurrentKey$) ...
+     if fkey<>93 then let fkey(-1)   ! reset the key, unless the user closed the window (93)
+     let Function=-1                 ! so nothing else treats this pass as Enter
+     let ExitMode=0                  ! don't exit after processing the key
+  end if
+  ```
+  `ExitMode` and `Function` are passed to event functions by reference. The same three-statement
+  cancel suppresses other keys: Esc (`function=99 or fkey=99`), the window's close X (`93`, e.g.
+  only after a "you still have unsaved work" `Msgbox`), or a tab click (`fkey=92`).
 
 <a id="authoring"></a>
 ## 9. Authoring a new screen programmatically (writing `screenio.dat`/`screenfld.dat` directly)
