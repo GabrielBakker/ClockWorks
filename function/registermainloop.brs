@@ -4,7 +4,8 @@
 ! fnRegisterMainloop - Main Loop event for REGISTER. When the clerk tries to leave
 !   (Exit button, or the window's close X) while a sale has items on it, asks whether
 !   to abandon the sale. Yes removes its lines from the sales file and quits; No keeps
-!   the register open.
+!   the register open. Once a payment has been taken the sale can't be abandoned
+!   (the money must stay on record), so it has to be completed or voided instead.
 !
 !   ScreenIO's own AskSaveAndQuit can't do this: it doesn't know the sale's lines are
 !   already in the sales file. And it has to be Main Loop: Main Loop runs after a
@@ -23,7 +24,12 @@
 
 def fnRegisterMainloop(;___,ItemQty,LastLine)
    if F$(IV_STATUS)="O" then let fnTotalSale("",ItemQty,LastLine)
-   if ExitMode and F$(IV_STATUS)="O" then
+   if ExitMode and F$(IV_STATUS)="O" and F(IV_AMTPAID)>0 then
+      let Msgbox("Payments have been taken on this sale, so it can't just be dropped. Please complete it or void it.","Sale in Progress","OK","EXCL")
+      if fkey<>93 then let fkey(-1)
+      let Function=-1
+      let ExitMode=0
+   else if ExitMode and F$(IV_STATUS)="O" then
       if 2==Msgbox("This sale has items on it. Are you sure you want to quit? They will be removed from the sale.","Quit This Sale?","yN","QST") then
          let fnAbandonSale
          let ExitMode=QuitOnly

@@ -11,7 +11,7 @@
 !   starts the invoice. Then it writes the sales line, updates the totals, and asks
 !   ScreenIO to redraw SALELINES. Nothing is redrawn when the item can't be added.
 !
-! fnTotalSale - Reads the current sale's lines: totals them into the invoice and
+! fnTotalSale - Reads the current sale's lines and payments: totals them into the invoice and
 !   Balance Due, and reports how many of one item are on the sale and the last line
 !   number used.
 !
@@ -103,7 +103,7 @@ def fnStartInvoice
    StartInvoiceDone: !
 fnend
 
-def fnTotalSale(ItemId$*8,&ItemQty,&LastLine;___,Subtotal,Taxable)
+def fnTotalSale(ItemId$*8,&ItemQty,&LastLine;___,Subtotal,Taxable,Paid)
    let ItemQty=LastLine=0
    if trim$(F$(IV_INVOICENO))="" then goto TotalSaleDone
    restore #SalesFile, key>=rpad$(F$(IV_INVOICENO),8)&chr$(0)&chr$(0): nokey TotalSaleDone
@@ -116,8 +116,19 @@ def fnTotalSale(ItemId$*8,&ItemQty,&LastLine;___,Subtotal,Taxable)
       let LastLine=max(LastLine,Sales(SL_LINENO))
    loop
    TotalSaleDone: !
+
+   if trim$(F$(IV_INVOICENO))="" then goto TotalSalePaid
+   restore #PayFile, key>=rpad$(F$(IV_INVOICENO),8)&chr$(0): nokey TotalSalePaid
+   do
+      read #PayFile, using form$(PayFile): mat Pay$, mat Pay eof TotalSalePaid
+      if Pay$(PY_INVOICENO)<>F$(IV_INVOICENO) then exit do
+      let Paid+=Pay(PY_AMOUNT)
+   loop
+   TotalSalePaid: !
+
    let F(IV_SUBTOTAL)=Subtotal
    let F(IV_TAXAMT)=round(Taxable*F(IV_TAXRATE),2)
    let F(IV_TOTAL)=Subtotal-F(IV_DISCOUNT)+F(IV_TAXAMT)
+   let F(IV_AMTPAID)=Paid
    let S$(SIO_BALANCEDUE)=str$(F(IV_TOTAL)-F(IV_AMTPAID))
 fnend

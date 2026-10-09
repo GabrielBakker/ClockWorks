@@ -16,6 +16,10 @@ def fnRegisterExit
       let fnCloseFile(SalesFile,"sales")
       let SalesFile=0
    end if
+   if PayFile then
+      let fnCloseFile(PayFile,"payment")
+      let PayFile=0
+   end if
    if CfgFile then
       let fnCloseFile(CfgFile,"storecfg")
       let CfgFile=0

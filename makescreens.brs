@@ -24,6 +24,7 @@
    let fnBuildQtyEdit
    let fnBuildSaleLines
    let fnBuildItemSearch
+   let fnBuildTender
    let fnBuildRegister
 
    let fnCloseFile(Screenio,"screenio")
@@ -84,6 +85,33 @@ def fnBuildItemSearch
    let fnCtl("button",   "SelectButton",     "",            "Select",         21, 76, 12,  6,  1, "let ExitMode=SelectAndQuit")
 fnend
 
+! ----- TENDER: take payments for the sale in progress (opened by REGISTER's Pay) ----
+def fnBuildTender
+   let fnStartScreen("TENDER","payment",19,70,"FFFFFF","50331A",1,"Take Payment","Takes payments for the sale in progress. REGISTER passes the invoice number as ParentKey$ and the sale total in PassedData$(1).","{tenderenter}","{tenderexit}","{tendermainloop}")
+   !         Type        Name                Field          Text                 Row Col Wid Spec Hgt Function
+   let fnCtl("caption",  "Caption_Total",    "",            "Total:",              2,  2, 15,  6,  1, "","","R")
+   let fnCtl("C",        "TenderTotal",      "",            "Caption_Total",       2, 18, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
+   let fnCtl("caption",  "Caption_Paid",     "",            "Paid so far:",        3,  2, 15, 12,  1, "","","R")
+   let fnCtl("C",        "TenderPaid",       "",            "Caption_Paid",        3, 18, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
+   let fnCtl("caption",  "Caption_Balance",  "",            "Balance Due:",        4,  2, 15, 12,  1, "","","R")
+   let fnCtl("C",        "TenderBalance",    "",            "Caption_Balance",     4, 18, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
+
+   let fnCtl("caption",  "Caption_Amount",   "",            "Amount:",             6,  2, 15,  7,  1, "","","R")
+   let fnCtl("C",        "PayAmount",        "",            "Caption_Amount",      6, 18, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("caption",  "Caption_Reference","",            "Check # / Auth:",     7,  2, 15, 15,  1, "","","R")
+   let fnCtl("C",        "PayReference",     "",            "Caption_Reference",   7, 18, 30, 30,  1, "")
+   let fnCtl("button",   "CashButton",       "",            "Cash",                9,  3, 10,  4,  1, "{paycash}")
+   let fnCtl("button",   "CheckButton",      "",            "Check",               9, 15, 10,  5,  1, "{paycheck}")
+   let fnCtl("button",   "CardButton",       "",            "Card",                9, 27, 10,  4,  1, "{paycard}")
+
+   let fnCtl("LISTVIEW", "",                 "",            "",                   11,  3, 64,  1,  7, "{tenderfilter}","LV1")
+   let fnCtl("LISTCHLD", "Field_METHOD",     "METHOD",      "Method",              1,  0,  8,  6,  1, "","LV1")
+   let fnCtl("LISTCHLD", "Field_AMOUNT",     "AMOUNT",      "Amount",              1,  0, 14, 14,  1, "","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("LISTCHLD", "Field_REFERENCE",  "REFERENCE",   "Check # / Auth",      1,  0, 30, 30,  1, "","LV1")
+   let fnCtl("button",   "RemovePayButton",  "",            "Remove Payment",     19,  3, 18, 14,  1, "{removepayment}")
+   let fnCtl("button",   "DoneButton",       "",            "Done",               19, 56, 12,  4,  1, "let ExitMode=QuitOnly")
+fnend
+
 ! ----- REGISTER: the cash register (main screen) ------------------------------------
 def fnBuildRegister
    let fnStartScreen("REGISTER","invoice",24,96,"FFFFFF","6B4423",1,"ClockWorks Register","The ClockWorks cash register. Opened by start.brs, one sale per call.","{registerenter}","{registerexit}","{registermainloop}")
@@ -113,9 +141,9 @@ def fnBuildRegister
    let fnCtl("caption", "Caption_BalanceDue","",          "Balance Due:",                    22, 60, 14, 12,  1, "","","R")
    let fnCtl("C",       "BalanceDue",        "",          "Caption_BalanceDue",              22, 75, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
 
-   let fnCtl("button",  "PayButton",         "",          "Pay...",                          24,  3, 10,  6,  1, "")
-   let fnCtl("button",  "CompleteButton",    "",          "Complete Sale",                   24, 15, 16, 13,  1, "")
-   let fnCtl("button",  "VoidButton",        "",          "Void Sale",                       24, 33, 12,  9,  1, "")
+   let fnCtl("button",  "PayButton",         "",          "Pay...",                          24,  3, 10,  6,  1, "{paysale}")
+   let fnCtl("button",  "CompleteButton",    "",          "Complete Sale",                   24, 15, 16, 13,  1, "{completesale}")
+   let fnCtl("button",  "VoidButton",        "",          "Void Sale",                       24, 33, 12,  9,  1, "{voidsale}")
    let fnCtl("button",  "ExitButton",        "",          "Exit",                            24, 84, 10,  4,  1, "let ExitMode=QuitOnly")
 fnend
 

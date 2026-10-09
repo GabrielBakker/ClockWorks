@@ -12,10 +12,12 @@
 dim Inv$(1)*1024, Inv(1), InvFile, InvUpcFile
 dim Sales$(1)*1024, Sales(1), SalesFile
 dim Cfg$(1)*1024, Cfg(1), CfgFile
+dim Pay$(1)*1024, Pay(1), PayFile
 
 def fnRegisterEnter(mat Form$)
    let InvFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$)
    let InvUpcFile=fnOpen("inventory",mat Inv$,mat Inv,mat Form$,0,4)
    let SalesFile=fnOpen("sales",mat Sales$,mat Sales,mat Form$)
    let CfgFile=fnOpen("storecfg",mat Cfg$,mat Cfg,mat Form$)
+   let PayFile=fnOpen("payment",mat Pay$,mat Pay,mat Form$)
 fnend
