@@ -689,7 +689,15 @@ recl=127                                   ← optional record length (column 1)
 - `<data-file>` — the data file name on disk (e.g. `price.dat`).
 - `<PREFIX_>` — a short string prefixing every field's subscript name, so identically-named fields in
   different files stay distinct (`PR_PRICE` vs. `RT_PRICE`). Chosen per file.
-- `<version>` — integer file-layout version. **Start at 0; increment by 1 on every layout change.**
+- `<version>` — integer file-layout version; increment by 1 on every layout change. **The starting
+  value carries meaning** (owner's convention):
+  - **`0`** — a *legacy* data file, written without FileIO, whose layout was added afterwards. Other
+    programs may still read it with their own hard-coded `FORM`s, so **never change a version-0
+    layout**. Layouts produced by converting an existing data dictionary (the checklist below) are
+    this case.
+  - **`1`** — a new file that is *always* accessed through FileIO. Start every new file here; its
+    first change makes it `2`.
+
   FileIO compares this to the on-disk file's version and auto-migrates data when yours is higher
   (backing up the old layout to `filelay/version/<name>.<n>`). Field data is copied by subscript name,
   so **never rename an existing subscript** — a rename reads as drop-old + add-new and loses that

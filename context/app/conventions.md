@@ -77,6 +77,12 @@ and it passes every by-reference argument as a variable. Calling `fnOpenFile` di
 literal such as `""` for `Path$` fails with BR error 0303, "cannot pass a literal by reference". Raw keyed `OPEN`/`KFNAME=` is reserved for the rare utility that needs
 file-level access FileIO doesn't provide — it is not a normal alternative for reading app data.
 
+**Layout version numbers** (owner's convention, 2026-10-09): a layout's header version is `0` only
+for a legacy file written without FileIO, whose layout was added later. Never change a version-0
+layout, because other programs may read that file with their own `FORM`s. **Every new file starts
+at version `1`**, meaning it is always accessed through FileIO, and each layout change bumps it by
+one. Full rule: ONBOARDING Appendix A.
+
 ## 3. Error handling: trailing I/O clauses, not ON ERROR handlers
 
 Use BR's own trailing error clauses on the I/O statement itself — `NOKEY`, `EOF ... IGNORE`,
