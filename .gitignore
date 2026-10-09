@@ -5,3 +5,8 @@
 /brserial.dat
 *.bak
 /spool
+
+# ClockWorks runtime output (recreate data files with: RUN initfiles)
+/initfiles.log
+/data/*
+!/data/.gitkeep
