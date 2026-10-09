@@ -435,6 +435,15 @@ overflowed or errored upstream, not that the program is genuinely waiting on the
   folder location. This makes applications portable without code changes but coders need to 
   be aware of it when creating an `OPEN` statement.
 
+- **A `C n` field comes back padded with trailing spaces, so compare it trimmed.** A value
+  written to a `C 6` field as `"CASH"` reads back as `"CASH  "`, so `IF M$="CASH"` is false.
+  Compare `trim$(M$)="CASH"` (or pad the literal). It fails silently: a report that totaled
+  payments by method this way found nothing and printed zeros (confirmed 2026-10-09).
+  One-character `C 1` codes and full-width values aren't affected.
+- **`PIC(...)` can't format a negative number.** `CNVRT$("PIC(ZZZ,ZZ#.##)",-5)` stops with BR
+  error 0002, "conversion error". Format the absolute value and add the sign yourself wherever
+  an amount can go negative (a net figure, a balance).
+
 - **`SUBSTITUTE` rewrites more than you expect.** An entry matches its text anywhere in a file
   name, ignoring case, including the start of a longer name (`bcp\unibarf` also catches
   `bcp\unibarfm.br`). Every matching entry is applied in order, each to the previous one's
