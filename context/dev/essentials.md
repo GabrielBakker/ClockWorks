@@ -242,6 +242,10 @@ Two kinds of content, both load-bearing:
 - **`EXIT DO` leaves a `DO` loop and is not the `EXIT` statement.** BR reads the word after `EXIT`
   and treats it as a loop exit only when it is `DO` (or `FOR`, or `SELECT`). Bare `EXIT` naming an
   error-exit group is a different statement and must be alone on its line.
+- **On a one-line `IF … THEN a : b`, every statement after the `:` belongs to the `IF`.** When the
+  condition is false, `b` is skipped too; it does not run unconditionally. Confirmed 2026-10-09 on
+  the kit's 4.33c: `if 1=2 then let A=1 : let B=1` left both at 0. It's legal, but a block `IF …
+  END IF` is clearer when the branch holds more than one statement.
 - **`ELSE` terminates the statement before it**, like `:` and `,` do — you never need a colon in
   front of it. It also stands alone at the head of a statement, which is what the multi-line form
   is built from:

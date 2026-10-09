@@ -93,6 +93,11 @@ Use BR's own trailing error clauses on the I/O statement itself — `NOKEY`, `EO
 User-facing errors go through `Msgbox` with a plain-language, conversational message rather than a
 raw error code.
 
+**Prefer block `IF … END IF` whenever a branch holds more than one statement** (owner's
+preference, for readability). BR does run every `:`-separated statement after a one-line `THEN`
+under the condition (see `dev/essentials.md`), so the one-line form isn't wrong, just harder to
+read.
+
 ## 4. Library-file idiom: run-guard + linkage-established-once
 
 Shared library files (root `*lib.brs`) commonly open with a guard that makes accidentally `RUN`ning
