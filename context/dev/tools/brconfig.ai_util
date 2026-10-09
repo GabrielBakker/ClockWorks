@@ -1,2 +1,3 @@
 LOGGING 10, context\app\startlog.txt, unattended
+application_name ClockWorks
 include settings.sys

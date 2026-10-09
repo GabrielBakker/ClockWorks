@@ -59,7 +59,7 @@ ScreenIO allows only one listview per screen, so each list lives on its own scre
 ## Screen colors
 
 House rule (called screens darker, see `conventions.md` §9): REGISTER uses walnut brown `6B4423`
-with `FGCOLOR="W"`; SALELINES, ITEMSEARCH and TENDER use `50331A` (about 75% as bright).
+with white caption text (`FGCOLOR` `FFFFFF`); SALELINES, ITEMSEARCH and TENDER use `50331A` (about 75% as bright).
 
 ## Decisions so far (owner, 2026-10-09)
 

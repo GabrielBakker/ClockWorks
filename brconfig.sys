@@ -1,2 +1,3 @@
+application_name ClockWorks
 include settings.sys
 execute "run start"

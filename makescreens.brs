@@ -39,7 +39,7 @@
 
 ! ----- SALELINES: the current sale's lines, embedded in REGISTER --------------------
 def fnBuildSaleLines
-   let fnStartScreen("SALELINES","sales",10,90,"W","50331A",0,"","Lines of the sale in progress. Embedded in REGISTER, which passes its invoice number as ParentKey$.")
+   let fnStartScreen("SALELINES","sales",10,90,"FFFFFF","50331A",0,"","Lines of the sale in progress. Embedded in REGISTER, which passes its invoice number as ParentKey$.")
    !         Type        Name                Field          Text              Row Col Wid Spec Hgt Function
    let fnCtl("LISTVIEW", "",                 "",            "",                1,  1, 90,  1,  9, "{salelinesfilter}","LV1")
    let fnCtl("LISTCHLD", "Field_ITEMID",     "ITEMID",      "Item",            1,  0,  8,  8,  1, "","LV1")
@@ -53,7 +53,7 @@ fnend
 
 ! ----- REGISTER: the cash register (main screen) ------------------------------------
 def fnBuildRegister
-   let fnStartScreen("REGISTER","invoice",24,96,"W","6B4423",1,"ClockWorks Register","The ClockWorks cash register. Opened by start.brs, one sale per call.")
+   let fnStartScreen("REGISTER","invoice",24,96,"FFFFFF","6B4423",1,"ClockWorks Register","The ClockWorks cash register. Opened by start.brs, one sale per call.")
    !         Type       Name                 Field        Text                               Row Col Wid Spec Hgt Function
    let fnCtl("caption", "Title",             "",          "ClockWorks Antique Clocks & Repair", 2,  3, 45, 34,  1, "")
    let fnCtl("caption", "Caption_INVOICENO", "",          "Invoice:",                         2, 66,  9,  8,  1, "","","R")
@@ -70,15 +70,15 @@ def fnBuildRegister
    let fnCtl("screen",  "SaleLines",         "SALELINES", "",                                 7,  3, 90,  0, 10, "ParentKey$=f$(iv_invoiceno)","Screen1")
 
    let fnCtl("caption", "Caption_SUBTOTAL",  "",          "Subtotal:",                       18, 60, 14,  9,  1, "","","R")
-   let fnCtl("C",       "Field_SUBTOTAL",    "SUBTOTAL",  "Caption_SUBTOTAL",                18, 75, 14, 10,  1, "","","R","N 10.2",1)
+   let fnCtl("C",       "Field_SUBTOTAL",    "SUBTOTAL",  "Caption_SUBTOTAL",                18, 75, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
    let fnCtl("caption", "Caption_TAXAMT",    "",          "Sales Tax:",                      19, 60, 14, 10,  1, "","","R")
-   let fnCtl("C",       "Field_TAXAMT",      "TAXAMT",    "Caption_TAXAMT",                  19, 75, 14, 10,  1, "","","R","N 10.2",1)
+   let fnCtl("C",       "Field_TAXAMT",      "TAXAMT",    "Caption_TAXAMT",                  19, 75, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
    let fnCtl("caption", "Caption_TOTAL",     "",          "TOTAL:",                          20, 60, 14,  6,  1, "","","R")
-   let fnCtl("C",       "Field_TOTAL",       "TOTAL",     "Caption_TOTAL",                   20, 75, 14, 10,  1, "","","R","N 10.2",1)
+   let fnCtl("C",       "Field_TOTAL",       "TOTAL",     "Caption_TOTAL",                   20, 75, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
    let fnCtl("caption", "Caption_AMTPAID",   "",          "Paid so far:",                    21, 60, 14, 12,  1, "","","R")
-   let fnCtl("C",       "Field_AMTPAID",     "AMTPAID",   "Caption_AMTPAID",                 21, 75, 14, 10,  1, "","","R","N 10.2",1)
+   let fnCtl("C",       "Field_AMTPAID",     "AMTPAID",   "Caption_AMTPAID",                 21, 75, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
    let fnCtl("caption", "Caption_BalanceDue","",          "Balance Due:",                    22, 60, 14, 12,  1, "","","R")
-   let fnCtl("C",       "BalanceDue",        "",          "Caption_BalanceDue",              22, 75, 14, 10,  1, "","","R","",1)
+   let fnCtl("C",       "BalanceDue",        "",          "Caption_BalanceDue",              22, 75, 14, 14,  1, "","","R","PIC(ZZZ,ZZZ,ZZ#.##)",1)
 
    let fnCtl("button",  "PayButton",         "",          "Pay...",                          24,  3, 10,  6,  1, "")
    let fnCtl("button",  "CompleteButton",    "",          "Complete Sale",                   24, 15, 16, 13,  1, "")
@@ -122,9 +122,9 @@ def fnRemoveScreen(Code$*18)
    ControlsDone: !
 fnend
 
-! Writes one control record for the screen being built. Text controls, buttons and
-! listviews get the "W" system color unless told otherwise; listview columns and
-! child screens are left blank, as in real screens.
+! Writes one control record for the screen being built. Text boxes, buttons and
+! listviews get the "W" system colors (black on white). Captions, listview columns and
+! child screens are left blank, so captions inherit the screen's own FGCOLOR (white).
 def fnCtl(Type$,Name$*50,Field$*50,Text$*255,Row,Col,Width,Spec,Height,Function$*255;Parent$*20,Justify$,CnvrtIn$*255,Protected)
    mat Screenfld$=("") : mat Screenfld=(0)
    if Parent$="" then
@@ -151,7 +151,7 @@ def fnCtl(Type$,Name$*50,Field$*50,Text$*255,Row,Col,Width,Spec,Height,Function$
    let Screenfld$(SF_PARENT)=Parent$
    let Screenfld$(SF_JUSTIFY)=Justify$
    let Screenfld$(SF_CNVRTIN)=CnvrtIn$
-   if Type$<>"LISTCHLD" and Type$<>"screen" then
+   if Type$="C" or Type$="button" or Type$="LISTVIEW" then
       let Screenfld$(SF_FGCOLOR)=Screenfld$(SF_BGCOLOR)="W     "
    else
       let Screenfld$(SF_FGCOLOR)=Screenfld$(SF_BGCOLOR)="      "
