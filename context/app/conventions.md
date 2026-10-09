@@ -228,9 +228,19 @@ already follows it.
    `CC6600` → called `994D00` (roughly 75% brightness, same hue) — "a little bit darker than the
    listview screen, but not that much." An earlier attempt at ~25% brightness (`331100`) was too
    dark to read.
-2. **When the background is dark enough to need white text, use the screen-level system color
-   `FGCOLOR$="W"` (padded `"W     "`)**, not a literal `FFFFFF` — the more idiomatic BR/ScreenIO
-   spelling, and it self-adapts.
+2. **Who gets which color** (owner, corrected 2026-10-09; an earlier version of this rule put
+   `"W"` on the screen header, which made every caption black):
+   - **Screen header `FGCOLOR$`**: the caption text color for the whole screen. On a dark
+     background use a real color, e.g. `FFFFFF` for white. `"W"` here is BR's *system window text*
+     color (black), not white.
+   - **Captions**: leave `FGCOLOR$`/`BGCOLOR$` **blank** so they inherit the header's color. Give
+     one its own color only when it should stand out.
+   - **Text boxes, buttons and listviews**: `"W"` (padded `"W     "`), BR's system window colors,
+     black on white, which stay readable on any background.
+
+   Why, from ScreenIO's source: a control with any color set gets `/<fg>:<bg>` (`Fncolor$`), so
+   `"W"` means `/W:W`; a control with both blank gets no color spec and inherits the window's
+   `N=/<header FG>:<header BG>` (`fnMakeWindowSpec$`).
 
 Check the result via a CSV dump of `screenio.dat` (`dev/screenio-guide.md` §7's export method),
 then have the owner confirm it visually.

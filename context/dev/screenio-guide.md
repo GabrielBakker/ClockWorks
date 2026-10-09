@@ -712,7 +712,8 @@ before you read that dump, so the raw CSV makes sense on sight:
 - A `LISTVIEW` with a **blank `FUNCTION$`** has no Filter function at all — every record in the
   bound file shows, unconditionally (the "bare listview" pattern; see §6 for what a non-blank
   Filter function's return value would otherwise control).
-- `FGCOLOR$`/`BGCOLOR$` are fixed **6-character** fields — a short code like `"W"` (white) is
+- `FGCOLOR$`/`BGCOLOR$` are fixed **6-character** fields — a short code like `"W"` (BR's system
+  *window* colors: black text on a white field, not "white") is
   stored left-justified, **padded with trailing spaces to 6 chars**, not bare. Blank/inherited
   color is 6 literal spaces, not an empty string.
 - **Column order is not controlled by `VPOSITION`/`HPOSITION`.** Every `LISTCHLD` sibling of the
