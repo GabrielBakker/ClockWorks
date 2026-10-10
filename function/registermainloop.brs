@@ -24,6 +24,9 @@
 
 def fnRegisterMainloop(;___,ItemQty,LastLine)
    if F$(IV_STATUS)="O" then let fnTotalSale("",ItemQty,LastLine)
+   ! A tab click (fkey 92) is left to the Write event (fnRegisterWrite): only there can
+   ! a cancelled exit leave fkey at 92, which makes ScreenIO switch the tab back.
+   if fkey=92 then goto MainloopDone
    if ExitMode and F$(IV_STATUS)="O" and F(IV_AMTPAID)>0 then
       let Msgbox("Payments have been taken on this sale, so it can't just be dropped. Please complete it or void it.","Sale in Progress","OK","EXCL")
       if fkey<>93 then let fkey(-1)
@@ -39,6 +42,7 @@ def fnRegisterMainloop(;___,ItemQty,LastLine)
          let ExitMode=0
       end if
    end if
+   MainloopDone: !
 fnend
 
 def fnAbandonSale(;___,InvoiceNo$*8)
