@@ -2,7 +2,7 @@
 00020 ! ScreenIO Generated Helper Library for REGISTER screen
 00030 ! Copyright 2008 by Sage AX
 00040 !
-00050 ! Compiled On: 10/09/2026
+00050 ! Compiled On: 10/10/2026
 00060 ! Version: 0
 00070 !
 00080 !
@@ -389,75 +389,83 @@
 05363 ! function\registerexit.brs
 05364 ! Created on 10/09/2026
 05365 !
-05366 ! fnRegisterExit - Exit event for REGISTER. Closes the files fnRegisterEnter opened.
-05367 !
-05368 def fnRegisterExit
-05369    if InvFile then
-05370       let fnCloseFile(InvFile,"inventory")
-05371       let InvFile=0
-05372    end if
-05373    if InvUpcFile then
-05374       let fnCloseFile(InvUpcFile,"inventory")
-05375       let InvUpcFile=0
+05366 ! fnRegisterExit - Exit event for REGISTER. When a sale has just been completed, offers
+05367 !   its receipt (printlib's fnAfterSale): ScreenIO has already saved the invoice by the
+05368 !   time the Exit event runs. Then closes the files fnRegisterEnter opened.
+05369 !
+05370 !   On the Sales tab, run.brs reopens REGISTER for the next sale as soon as it exits.
+05371 !
+05372 def fnRegisterExit
+05373    if ExitMode=SaveAndQuit and F$(IV_STATUS)="P" then
+05374       library "printlib" : fnAfterSale
+05375       let fnAfterSale(F$(IV_INVOICENO))
 05376    end if
-05377    if SalesFile then
-05378       let fnCloseFile(SalesFile,"sales")
-05379       let SalesFile=0
+05377    if InvFile then
+05378       let fnCloseFile(InvFile,"inventory")
+05379       let InvFile=0
 05380    end if
-05381    if PayFile then
-05382       let fnCloseFile(PayFile,"payment")
-05383       let PayFile=0
+05381    if InvUpcFile then
+05382       let fnCloseFile(InvUpcFile,"inventory")
+05383       let InvUpcFile=0
 05384    end if
-05385    if CfgFile then
-05386       let fnCloseFile(CfgFile,"storecfg")
-05387       let CfgFile=0
+05385    if SalesFile then
+05386       let fnCloseFile(SalesFile,"sales")
+05387       let SalesFile=0
 05388    end if
-05389 fnend
-05390 !
-05391 ! Imported From "function\saleqtyrules.brs"
-05392 ! function\saleqtyrules.brs
-05393 ! Created on 10/09/2026
-05394 !
-05395 ! fnSaleQtyOk - The rules for a quantity on a sales line, shared by the item box
-05396 !   (REGISTER) and Change Qty (QTYEDIT). Returns 1 if Qty is allowed; otherwise
-05397 !   explains why in a Msgbox and returns 0.
+05389    if PayFile then
+05390       let fnCloseFile(PayFile,"payment")
+05391       let PayFile=0
+05392    end if
+05393    if CfgFile then
+05394       let fnCloseFile(CfgFile,"storecfg")
+05395       let CfgFile=0
+05396    end if
+05397 fnend
 05398 !
-05399 !   ItemType$     C=Clock, P=Part, S=Service (from the inventory record)
-05400 !   Qty           the quantity wanted on this line
-05401 !   OnHand        inventory quantity on hand (ignored for services, never stocked)
-05402 !   MaxPerSale    the most of this item one sale may have (0 means no limit), e.g. 1
-05403 !                 for a service charged per job
-05404 !   OtherQty      how many of this item are already on the sale on other lines
-05405 !   Description$  the item's description, for the messages
+05399 ! Imported From "function\saleqtyrules.brs"
+05400 ! function\saleqtyrules.brs
+05401 ! Created on 10/09/2026
+05402 !
+05403 ! fnSaleQtyOk - The rules for a quantity on a sales line, shared by the item box
+05404 !   (REGISTER) and Change Qty (QTYEDIT). Returns 1 if Qty is allowed; otherwise
+05405 !   explains why in a Msgbox and returns 0.
 05406 !
-05407 def fnSaleQtyOk(ItemType$,Qty,OnHand,MaxPerSale,OtherQty,Description$*60)
-05408    if Qty<=0 then
-05409       let Msgbox("The quantity has to be more than zero.","Quantity","OK","EXCL")
-05410    else if Qty>999.99 then
-05411       let Msgbox("The largest quantity a line can hold is 999.99.","Quantity","OK","EXCL")
-05412    else if round(Qty,2)<>Qty then
-05413       let Msgbox("Quantities can have at most two decimal places, for example 1.25 hours.","Quantity","OK","EXCL")
-05414    else if ItemType$<>"S" and int(Qty)<>Qty then
-05415       let Msgbox(trim$(Description$)&" is sold in whole numbers. Only labor and other services can have a fraction.","Quantity","OK","EXCL")
-05416    else if MaxPerSale and OtherQty+Qty>MaxPerSale then
-05417       if MaxPerSale=1 then
-05418          let Msgbox(trim$(Description$)&" is charged once per sale, and it's already on this sale.","Once per Sale","OK","EXCL")
-05419       else
-05420          let Msgbox("A sale can have at most "&str$(MaxPerSale)&" of "&trim$(Description$)&", and "&str$(OtherQty)&" are already on it.","Limit per Sale","OK","EXCL")
-05421       end if
-05422    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
-05423       if OnHand=1 then
-05424          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
-05425       else
-05426          let Msgbox("We only have "&str$(OnHand)&" of "&trim$(Description$)&" in stock, and "&str$(OtherQty)&" of them are already on this sale.","Not Enough Stock","OK","EXCL")
-05427       end if
-05428    else
-05429       let fnSaleQtyOk=1
-05430    end if
-05431 fnend
-05432 !
-05433 !
-05434 !
+05407 !   ItemType$     C=Clock, P=Part, S=Service (from the inventory record)
+05408 !   Qty           the quantity wanted on this line
+05409 !   OnHand        inventory quantity on hand (ignored for services, never stocked)
+05410 !   MaxPerSale    the most of this item one sale may have (0 means no limit), e.g. 1
+05411 !                 for a service charged per job
+05412 !   OtherQty      how many of this item are already on the sale on other lines
+05413 !   Description$  the item's description, for the messages
+05414 !
+05415 def fnSaleQtyOk(ItemType$,Qty,OnHand,MaxPerSale,OtherQty,Description$*60)
+05416    if Qty<=0 then
+05417       let Msgbox("The quantity has to be more than zero.","Quantity","OK","EXCL")
+05418    else if Qty>999.99 then
+05419       let Msgbox("The largest quantity a line can hold is 999.99.","Quantity","OK","EXCL")
+05420    else if round(Qty,2)<>Qty then
+05421       let Msgbox("Quantities can have at most two decimal places, for example 1.25 hours.","Quantity","OK","EXCL")
+05422    else if ItemType$<>"S" and int(Qty)<>Qty then
+05423       let Msgbox(trim$(Description$)&" is sold in whole numbers. Only labor and other services can have a fraction.","Quantity","OK","EXCL")
+05424    else if MaxPerSale and OtherQty+Qty>MaxPerSale then
+05425       if MaxPerSale=1 then
+05426          let Msgbox(trim$(Description$)&" is charged once per sale, and it's already on this sale.","Once per Sale","OK","EXCL")
+05427       else
+05428          let Msgbox("A sale can have at most "&str$(MaxPerSale)&" of "&trim$(Description$)&", and "&str$(OtherQty)&" are already on it.","Limit per Sale","OK","EXCL")
+05429       end if
+05430    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
+05431       if OnHand=1 then
+05432          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
+05433       else
+05434          let Msgbox("We only have "&str$(OnHand)&" of "&trim$(Description$)&" in stock, and "&str$(OtherQty)&" of them are already on this sale.","Not Enough Stock","OK","EXCL")
+05435       end if
+05436    else
+05437       let fnSaleQtyOk=1
+05438    end if
+05439 fnend
+05440 !
+05441 !
+05442 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{additemtosale}" then
 85002       let fnCheckStringFunction = 0

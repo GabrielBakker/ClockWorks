@@ -2,19 +2,18 @@
 !
 ! Created 10/09/2026
 !
-! Runs the REGISTER screen, one sale at a time. Completing or voiding a sale saves
-! the invoice and returns its number; fnAfterSale (printlib.brs) then offers a
-! receipt for a completed sale, and we loop straight into the next sale. Exit
-! returns nothing, which ends the program. If the clerk closed the window with its X
-! (fkey 93), close BR entirely too.
+! Opens the two ClockWorks tabs through ScreenIO's run.brs: Sales (the REGISTER) and
+! Purchases (buying stock). run.brs reruns a tab's screen whenever it exits, so the
+! register simply starts the next sale after each one is completed or voided.
+! Esc is blocked; the app is left by closing the window with its X (fkey 93),
+! which closes BR entirely too.
 !
-   library "screenio" : fnfm$
-   library "printlib" : fnAfterSale
-   dim Result$*255
+   library "run" : fnRunTabs
+   dim Screen$(2)*18, Caption$(2)*20
 
-   do
-      let Result$=fnfm$("REGISTER")
-      if len(trim$(Result$)) then let fnAfterSale(trim$(Result$))
-   loop while len(trim$(Result$))
+   let Screen$(1)="REGISTER" : let Caption$(1)="Sales"
+   let Screen$(2)="PURCHASES" : let Caption$(2)="Purchases"
+   !            Screens      Captions      Rows Cols Inside Predraw Msg  Row Col Start BlockESC ExitOnCancel
+   let fnRunTabs(mat Screen$,mat Caption$,0,   0,   0,     0,      "",  0,  0,  1,    1,       0)
    if fkey=93 then execute "System"
    stop

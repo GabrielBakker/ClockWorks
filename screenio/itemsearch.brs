@@ -2,7 +2,7 @@
 00020 ! ScreenIO Generated Helper Library for ITEMSEARCH screen
 00030 ! Copyright 2008 by Sage AX
 00040 !
-00050 ! Compiled On: 10/09/2026
+00050 ! Compiled On: 10/10/2026
 00060 ! Version: 0
 00070 !
 00080 !
@@ -29,20 +29,22 @@
 05003 ! function\itemsearchfilter.brs
 05004 ! Created on 10/09/2026
 05005 !
-05006 ! fnItemSearchFilter$ - Filter for the ITEMSEARCH listview: shows only items that can
-05007 !   be sold right now. That's active items that are in stock, plus active services,
-05008 !   which are never stocked.
-05009 !
-05010 def fnItemSearchFilter$
-05011    if F$(IN_STATUS)="A" and (F$(IN_ITEMTYPE)="S" or F(IN_QTYONHAND)>0) then
-05012       let fnItemSearchFilter$="1"
-05013    else
-05014       let fnItemSearchFilter$=""
-05015    end if
-05016 fnend
-05017 !
-05018 !
+05006 ! fnItemSearchFilter$ - Filter for the ITEMSEARCH listview.
+05007 !   Selling (the register's magnifier): only items that can be sold right now, that
+05008 !     is active items in stock, plus active services, which are never stocked.
+05009 !   Restocking (BUY's magnifier passes ParentKey$ "RESTOCK"): every active clock and
+05010 !     part, including ones with none left; services can't be purchased.
+05011 !
+05012 def fnItemSearchFilter$
+05013    if trim$(ParentKey$)="RESTOCK" then
+05014       if F$(IN_STATUS)="A" and F$(IN_ITEMTYPE)<>"S" then let fnItemSearchFilter$="1"
+05015    else
+05016       if F$(IN_STATUS)="A" and (F$(IN_ITEMTYPE)="S" or F(IN_QTYONHAND)>0) then let fnItemSearchFilter$="1"
+05017    end if
+05018 fnend
 05019 !
+05020 !
+05021 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{itemsearchfilter}" then
 85002       let fnCheckStringFunction = 19

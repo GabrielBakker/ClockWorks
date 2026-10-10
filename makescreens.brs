@@ -25,6 +25,8 @@
    let fnBuildSaleLines
    let fnBuildItemSearch
    let fnBuildTender
+   let fnBuildBuy
+   let fnBuildPurchases
    let fnBuildRegister
 
    let fnCloseFile(Screenio,"screenio")
@@ -112,6 +114,77 @@ def fnBuildTender
    let fnCtl("button",   "DoneButton",       "",            "Done",               19, 56, 12,  4,  1, "let ExitMode=QuitOnly")
 fnend
 
+! ----- BUY: one new purchase (opened by PURCHASES' New Purchase button) ---------------
+def fnBuildBuy
+   let fnStartScreen("BUY","purchase",23,90,"FFFFFF","50331A",1,"New Purchase","Records one purchase: a new item for inventory, or a restock of an item we have. Opened by PURCHASES.","{buyenter}","{buyexit}","","{writepurchase}","{buyinit}")
+   let fnCtl("caption","Caption_SOURCE","","Bought From:",2,2,16,12,1,"","","R")
+   let fnCtl("C","Field_SOURCE","SOURCE","Caption_SOURCE",2,19,40,40,1,"")
+   let fnCtl("caption","Caption_SOURCEINFO","","Seller Contact:",3,2,16,15,1,"","","R")
+   let fnCtl("C","Field_SOURCEINFO","SOURCEINFO","Caption_SOURCEINFO",3,19,40,60,1,"")
+   let fnCtl("caption","Caption_PURCHDATE","","Date:",4,2,16,5,1,"","","R")
+   let fnCtl("C","Field_PURCHDATE","PURCHDATE","Caption_PURCHDATE",4,19,12,10,1,"","","","DATE(mm/dd/ccyy)")
+
+   let fnCtl("caption","Caption_BuyItemId","","Restock Item #:",6,2,16,15,1,"","","R")
+   let fnCtl("C","BuyItemId","","Caption_BuyItemId",6,19,10,8,1,"{validatebuyitem}","","U")
+   let fnCtl("P","BuySearchIcon","","",6,30,2,0,1,"{buysearch}","","","",0,"images\search.png")
+   let fnCtl("C","BuyItemDesc","","Caption_BuyItemId",6,34,54,80,1,"","","","",1)
+   let fnCtl("caption","Caption_NewItem","","- or a new item -",7,19,30,17,1,"")
+
+   let fnCtl("caption","Caption_NewType","","Type (C/P):",8,2,16,11,1,"","","R")
+   let fnCtl("C","NewType","","Caption_NewType",8,19,3,1,1,"","","U")
+   let fnCtl("caption","Caption_NewDesc","","Description:",9,2,16,12,1,"","","R")
+   let fnCtl("C","NewDesc","","Caption_NewDesc",9,19,50,60,1,"")
+   let fnCtl("caption","Caption_NewCategory","","Category:",10,2,16,9,1,"","","R")
+   let fnCtl("C","NewCategory","","Caption_NewCategory",10,19,14,12,1,"")
+   let fnCtl("caption","Caption_NewMaker","","Maker:",10,36,8,6,1,"","","R")
+   let fnCtl("C","NewMaker","","Caption_NewMaker",10,45,30,30,1,"")
+   let fnCtl("caption","Caption_NewOrigin","","Origin:",11,2,16,7,1,"","","R")
+   let fnCtl("C","NewOrigin","","Caption_NewOrigin",11,19,14,20,1,"")
+   let fnCtl("caption","Caption_NewEra","","Era:",11,36,8,4,1,"","","R")
+   let fnCtl("C","NewEra","","Caption_NewEra",11,45,12,12,1,"")
+   let fnCtl("caption","Caption_NewCondition","","Condition:",12,2,16,10,1,"","","R")
+   let fnCtl("C","NewCondition","","Caption_NewCondition",12,19,12,10,1,"")
+   let fnCtl("caption","Caption_NewSerial","","Serial #:",12,36,8,9,1,"","","R")
+   let fnCtl("C","NewSerial","","Caption_NewSerial",12,45,20,20,1,"")
+   let fnCtl("caption","Caption_NewLocation","","Location:",13,2,16,9,1,"","","R")
+   let fnCtl("C","NewLocation","","Caption_NewLocation",13,19,20,20,1,"")
+   let fnCtl("caption","Caption_NewUpc","","UPC:",13,40,5,4,1,"","","R")
+   let fnCtl("C","NewUpc","","Caption_NewUpc",13,46,16,14,1,"")
+   let fnCtl("caption","Caption_NewPrice","","Retail Price:",14,2,16,13,1,"","","R")
+   let fnCtl("C","NewPrice","","Caption_NewPrice",14,19,14,14,1,"","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("caption","Caption_NewTaxable","","Taxable (Y/N):",14,36,15,14,1,"","","R")
+   let fnCtl("C","NewTaxable","","Caption_NewTaxable",14,52,3,1,1,"","","U")
+
+   let fnCtl("caption","Caption_QTY","","Quantity:",16,2,16,9,1,"","","R")
+   let fnCtl("C","Field_QTY","QTY","Caption_QTY",16,19,6,4,1,"","","R")
+   let fnCtl("caption","Caption_UNITCOST","","Unit Cost:",17,2,16,10,1,"","","R")
+   let fnCtl("C","Field_UNITCOST","UNITCOST","Caption_UNITCOST",17,19,14,14,1,"","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("caption","Caption_NOTES","","Notes:",18,2,16,6,1,"","","R")
+   let fnCtl("C","Field_NOTES","NOTES","Caption_NOTES",18,19,68,255,1,"")
+
+   let fnCtl("button","SaveButton","","Save",21,60,12,4,1,"{savepurchase}")
+   let fnCtl("button","CancelButton","","Cancel",21,75,12,6,1,"let ExitMode=QuitOnly")
+fnend
+
+! ----- PURCHASES: the Purchases tab - every purchase, newest first --------------------
+def fnBuildPurchases
+   let fnStartScreen("PURCHASES","purchase",24,96,"FFFFFF","6B4423",1,"ClockWorks Purchases","The Purchases tab: every purchase, newest first, and New Purchase. Opened by start.brs as a tab.")
+   let fnCtl("caption","Title","","Clocks and parts we've bought",2,3,40,29,1,"")
+   let fnCtl("button","NewPurchaseButton","","New Purchase...",2,76,18,15,1,"[BUY]")
+   let fnCtl("P","SearchPic_1","","",4,3,2,0,1,"","","","",0,"images\search.png")
+   let fnCtl("FILTER","","","SearchPic_1",4,6,50,60,1,"","LV1")
+   ! A negative LISTVIEW spec width sorts by that column descending: -2 is Purchase #, newest first.
+   let fnCtl("LISTVIEW","","","",6,3,90,-2,17,"{purchasesfilter}","LV1")
+   let fnCtl("LISTCHLD","Field_PURCHDATE","PURCHDATE","Date",1,0,10,10,1,"","LV1","","DATE(mm/dd/ccyy)")
+   let fnCtl("LISTCHLD","Field_PURCHASEID","PURCHASEID","Purchase #",1,0,9,8,1,"","LV1")
+   let fnCtl("LISTCHLD","Field_ITEMID","ITEMID","Item",1,0,8,8,1,"","LV1")
+   let fnCtl("LISTCHLD","ItemDesc","","Description",1,0,22,60,1,"","LV1")
+   let fnCtl("LISTCHLD","Field_SOURCE","SOURCE","Bought From",1,0,14,40,1,"","LV1")
+   let fnCtl("LISTCHLD","Field_QTY","QTY","Qty",1,0,5,5,1,"","LV1","R","N 5")
+   let fnCtl("LISTCHLD","Field_UNITCOST","UNITCOST","Unit Cost",1,0,10,14,1,"","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("LISTCHLD","Field_TOTALCOST","TOTALCOST","Total",1,0,10,14,1,"","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+fnend
+
 ! ----- REGISTER: the cash register (main screen) ------------------------------------
 def fnBuildRegister
    let fnStartScreen("REGISTER","invoice",24,96,"FFFFFF","6B4423",1,"ClockWorks Register","The ClockWorks cash register. Opened by start.brs, one sale per call.","{registerenter}","{registerexit}","{registermainloop}")
@@ -145,12 +218,11 @@ def fnBuildRegister
    let fnCtl("button",  "CompleteButton",    "",          "Complete Sale",                   24, 15, 16, 13,  1, "{completesale}")
    let fnCtl("button",  "VoidButton",        "",          "Void Sale",                       24, 33, 12,  9,  1, "{voidsale}")
    let fnCtl("button",  "DayReportButton",   "",          "Day Report",                      24, 66, 14, 10,  1, "{dayreport}")
-   let fnCtl("button",  "ExitButton",        "",          "Exit",                            24, 84, 10,  4,  1, "let ExitMode=QuitOnly")
 fnend
 
 ! Deletes any existing records for this screen, then writes its header record, with
-! its Enter, Exit, Main Loop and Write event functions if it has any.
-def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes$*255;EnterFn$*255,ExitFn$*255,LoopFn$*255,WriteFn$*255)
+! its Enter, Exit, Main Loop, Write and Initialize event functions if it has any.
+def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes$*255;EnterFn$*255,ExitFn$*255,LoopFn$*255,WriteFn$*255,InitFn$*255)
    let CurrentScreen$=Code$
    let CaptionCount=TextboxCount=ButtonCount=ScreenCount=0
    let fnRemoveScreen(Code$)
@@ -165,6 +237,7 @@ def fnStartScreen(Code$*18,Layout$*18,Rows,Cols,Fg$,Bg$,Border,WindCap$*80,Notes
    let Screenio$(SI_EXITFN)=ExitFn$
    let Screenio$(SI_LOOPFN)=LoopFn$
    let Screenio$(SI_WRITEFN)=WriteFn$
+   let Screenio$(SI_INITFN)=InitFn$
    let Screenio$(SI_CREATEUSER)=Screenio$(SI_MODIFYUSER)="Claude"
    let Screenio(SI_VSIZE)=Rows
    let Screenio(SI_HSIZE)=Cols
