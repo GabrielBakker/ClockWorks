@@ -25,239 +25,318 @@
 01080 !
 05000 CustomFunctions: ! Lines 5000 - 70000 are Custom Functions
 05001 ! ============================================================
-05002 ! Imported From "function\validatebuyitem.brs"
-05003 ! function\validatebuyitem.brs
+05002 ! Imported From "function\validatenotblank.brs"
+05003 ! function\validatenotblank.brs
 05004 ! Created on 10/10/2026
 05005 !
-05006 ! fnValidateBuyItem - Validate event for BUY's "Restock item #" box. Blank means a
-05007 !   new item. Otherwise the item must exist and be a clock or a part (services
-05008 !   can't be purchased); its description and stock show beside the box. Returns 0
-05009 !   to make ScreenIO put back what was there before.
-05010 !
-05011 ! #Include {buyenter}
-05012 !
-05013 def fnValidateBuyItem(&FieldText$)
-05014    let FieldText$=uprc$(trim$(FieldText$))
-05015    let S$(SIO_BUYITEMDESC)=""
-05016    if FieldText$="" then
-05017       let fnValidateBuyItem=1
-05018       goto ValidateBuyItemDone
-05019    end if
-05020    if len(FieldText$)>8 then goto ValidateBuyItemNotFound
-05021    read #ByInvFile, using form$(ByInvFile), key=fnKey$(ByInvFile,FieldText$): mat ByInv$, mat ByInv nokey ValidateBuyItemNotFound
-05022    if ByInv$(IN_ITEMTYPE)="S" then
-05023       let Msgbox(trim$(ByInv$(IN_DESCRIPTION))&" is a service. Only clocks and parts can be purchased.","Can't Purchase a Service","OK","EXCL")
-05024    else
-05025       let S$(SIO_BUYITEMDESC)=trim$(ByInv$(IN_DESCRIPTION))&"  (on hand: "&str$(ByInv(IN_QTYONHAND))&")"
-05026       let fnValidateBuyItem=1
-05027    end if
-05028    goto ValidateBuyItemDone
-05029    ValidateBuyItemNotFound: !
-05030    let Msgbox("There's no item "&FieldText$&" in the inventory. Leave the box blank to buy a new item, or use the magnifier to pick one.","Item Not Found","OK","EXCL")
-05031    ValidateBuyItemDone: !
-05032 fnend
-05033 !
-05034 ! Imported From "function\buysearch.brs"
-05035 ! function\buysearch.brs
-05036 ! Created on 10/10/2026
-05037 !
-05038 ! fnBuySearch - Click event for BUY's magnifier. Shows ITEMSEARCH in restock mode
-05039 !   (ParentKey$ "RESTOCK": every active clock and part, even those out of stock) and
-05040 !   passes the chosen item through the box's own Validate function.
-05041 !
-05042 ! #Include {validatebuyitem}
-05043 !
-05044 def fnBuySearch(;___,ItemId$*255)
-05045    let ItemId$=fnfm$("ITEMSEARCH","",0,0,"RESTOCK")
-05046    if len(trim$(ItemId$)) then
-05047       if fnValidateBuyItem(ItemId$) then let S$(SIO_BUYITEMID)=ItemId$
-05048    end if
-05049 fnend
-05050 !
-05051 ! Imported From "function\savepurchase.brs"
-05052 ! function\savepurchase.brs
-05053 ! Created on 10/10/2026
-05054 !
-05055 ! fnSavePurchase - BUY's Save button. Checks the purchase before anything is
-05056 !   written; only when it's complete does it set ExitMode=SaveAndQuit, which runs
-05057 !   the Write event (fnWritePurchase) and saves the purchase.
+05006 ! fnValidateNotBlank - Validate event for any field that must be filled in. Returns 0
+05007 !   for a blank entry, so ScreenIO puts the previous value back.
+05008 !
+05009 def fnValidateNotBlank(&FieldText$)
+05010    if trim$(FieldText$)="" then
+05011       let Msgbox("This field can't be left blank.","Required","OK","EXCL")
+05012    else
+05013       let fnValidateNotBlank=1
+05014    end if
+05015 fnend
+05016 !
+05017 ! Imported From "function\validatebuyitem.brs"
+05018 ! function\validatebuyitem.brs
+05019 ! Created on 10/10/2026
+05020 !
+05021 ! fnValidateBuyItem - Validate event for BUY's "Restock item #" box. Blank means a
+05022 !   new item. Otherwise the item must exist and be a clock or a part (services
+05023 !   can't be purchased); its description and stock show beside the box. Returns 0
+05024 !   to make ScreenIO put back what was there before.
+05025 !
+05026 ! #Include {buyenter}
+05027 !
+05028 def fnValidateBuyItem(&FieldText$)
+05029    let FieldText$=uprc$(trim$(FieldText$))
+05030    let S$(SIO_BUYITEMDESC)=""
+05031    if FieldText$="" then
+05032       let fnValidateBuyItem=1
+05033       goto ValidateBuyItemDone
+05034    end if
+05035    if len(FieldText$)>8 then goto ValidateBuyItemNotFound
+05036    read #ByInvFile, using form$(ByInvFile), key=fnKey$(ByInvFile,FieldText$): mat ByInv$, mat ByInv nokey ValidateBuyItemNotFound
+05037    if ByInv$(IN_ITEMTYPE)="S" then
+05038       let Msgbox(trim$(ByInv$(IN_DESCRIPTION))&" is a service. Only clocks and parts can be purchased.","Can't Purchase a Service","OK","EXCL")
+05039    else
+05040       let S$(SIO_BUYITEMDESC)=trim$(ByInv$(IN_DESCRIPTION))&"  (on hand: "&str$(ByInv(IN_QTYONHAND))&")"
+05041       let fnValidateBuyItem=1
+05042    end if
+05043    goto ValidateBuyItemDone
+05044    ValidateBuyItemNotFound: !
+05045    let Msgbox("There's no item "&FieldText$&" in the inventory. Leave the box blank to buy a new item, or use the magnifier to pick one.","Item Not Found","OK","EXCL")
+05046    ValidateBuyItemDone: !
+05047 fnend
+05048 !
+05049 ! Imported From "function\buysearch.brs"
+05050 ! function\buysearch.brs
+05051 ! Created on 10/10/2026
+05052 !
+05053 ! fnBuySearch - Click event for BUY's magnifier. Shows ITEMSEARCH in restock mode
+05054 !   (ParentKey$ "RESTOCK": every active clock and part, even those out of stock) and
+05055 !   passes the chosen item through the box's own Validate function.
+05056 !
+05057 ! #Include {validatebuyitem}
 05058 !
-05059 def fnSavePurchase
-05060    if trim$(F$(PU_SOURCE))="" then
-05061       let Msgbox("Who did we buy it from? Please fill in Bought From.","Bought From","OK","EXCL")
-05062    else if F(PU_QTY)<=0 or int(F(PU_QTY))<>F(PU_QTY) then
-05063       let Msgbox("The quantity has to be a whole number, more than zero.","Quantity","OK","EXCL")
-05064    else if F(PU_UNITCOST)<0 then
-05065       let Msgbox("The unit cost can't be negative.","Unit Cost","OK","EXCL")
-05066    else if trim$(S$(SIO_BUYITEMID))<>"" then
-05067       let ExitMode=SaveAndQuit
-05068    else if uprc$(trim$(S$(SIO_NEWTYPE)))<>"C" and uprc$(trim$(S$(SIO_NEWTYPE)))<>"P" then
-05069       let Msgbox("For a new item, the Type must be C (clock) or P (part). Or fill in Restock item # to add to an item we already have.","New Item","OK","EXCL")
-05070    else if trim$(S$(SIO_NEWDESC))="" then
-05071       let Msgbox("Please give the new item a description.","New Item","OK","EXCL")
-05072    else if val(S$(SIO_NEWPRICE))<=0 then
-05073       let Msgbox("Please give the new item a retail price.","New Item","OK","EXCL")
-05074    else
-05075       let ExitMode=SaveAndQuit
-05076    end if
-05077 fnend
-05078 !
-05079 ! Imported From "function\buyenter.brs"
-05080 ! function\buyenter.brs
-05081 ! Created on 10/10/2026
-05082 !
-05083 ! fnBuyEnter - Enter event for BUY (New Purchase). Opens inventory and the store
-05084 !   settings; fnBuyExit closes them. Inventory is opened OutIn, like every other open
-05085 !   of it in this session (BR error 0608 otherwise).
-05086 !
-05087 dim ByInv$(1)*1024, ByInv(1), ByInvFile
-05088 dim ByCfg$(1)*1024, ByCfg(1), ByCfgFile
-05089 !
-05090 def fnBuyEnter(mat Form$)
-05091    let ByInvFile=fnOpen("inventory",mat ByInv$,mat ByInv,mat Form$)
-05092    let ByCfgFile=fnOpen("storecfg",mat ByCfg$,mat ByCfg,mat Form$)
-05093 fnend
-05094 !
-05095 ! Imported From "function\buyinit.brs"
-05096 ! function\buyinit.brs
-05097 ! Created on 10/10/2026
-05098 !
-05099 ! fnBuyInit - Initialize event for BUY: a new purchase is dated today, one of it,
-05100 !   and a new item is taxable unless the clerk says otherwise.
-05101 !
-05102 def fnBuyInit
-05103    let F(PU_PURCHDATE)=days(date$("ccyymmdd"),"ccyymmdd")
-05104    let F(PU_QTY)=1
-05105    let S$(SIO_NEWTAXABLE)="Y"
-05106 fnend
-05107 !
-05108 ! Imported From "function\writepurchase.brs"
-05109 ! function\writepurchase.brs
-05110 ! Created on 10/10/2026
-05111 !
-05112 ! fnWritePurchase - Write event for BUY. Runs just before ScreenIO saves the
-05113 !   purchase (fnSavePurchase has already checked it). Gives the purchase the next
-05114 !   purchase number from the store settings and works out its total, then updates
-05115 !   inventory: a restock adds the quantity and takes the latest unit cost; a new
-05116 !   item gets the next item number for its type (CLKnnnn or PRTnnnn) and is added.
-05117 !
-05118 ! #Include {buyenter}
-05119 ! #Include {nextinvid}
-05120 !
-05121 def fnWritePurchase(;___,ItemId$*8,Prefix$*3)
-05122    read #ByCfgFile, using form$(ByCfgFile), rec=1, reserve: mat ByCfg$, mat ByCfg norec WritePurchaseNoConfig
-05123    let F$(PU_PURCHASEID)="P"&lpad$(str$(ByCfg(CF_NEXTPURCHASE)),7,"0")
-05124    let ByCfg(CF_NEXTPURCHASE)+=1
-05125    rewrite #ByCfgFile, using form$(ByCfgFile): mat ByCfg$, mat ByCfg
-05126    release #ByCfgFile:
-05127    WritePurchaseNoConfig: !
-05128    let F(PU_TOTALCOST)=round(F(PU_UNITCOST)*F(PU_QTY),2)
-05129 !
-05130    if trim$(S$(SIO_BUYITEMID))<>"" then
-05131       let ItemId$=uprc$(trim$(S$(SIO_BUYITEMID)))
-05132       read #ByInvFile, using form$(ByInvFile), key=fnKey$(ByInvFile,ItemId$), reserve: mat ByInv$, mat ByInv nokey WritePurchaseDone
-05133       let ByInv(IN_QTYONHAND)+=F(PU_QTY)
-05134       let ByInv(IN_COST)=F(PU_UNITCOST)
-05135       rewrite #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv
-05136       release #ByInvFile:
-05137    else
-05138       if uprc$(trim$(S$(SIO_NEWTYPE)))="C" then
-05139          let Prefix$="CLK"
-05140       else
-05141          let Prefix$="PRT"
-05142       end if
-05143       let ItemId$=fnNextInvId$(ByInvFile,Prefix$)
-05144       mat ByInv$=("") : mat ByInv=(0)
-05145       let ByInv$(IN_ITEMID)=ItemId$
-05146       let ByInv$(IN_UPC)=S$(SIO_NEWUPC)
-05147       let ByInv$(IN_ITEMTYPE)=uprc$(trim$(S$(SIO_NEWTYPE)))
-05148       let ByInv$(IN_DESCRIPTION)=S$(SIO_NEWDESC)
-05149       let ByInv$(IN_CATEGORY)=S$(SIO_NEWCATEGORY)
-05150       let ByInv$(IN_MAKER)=S$(SIO_NEWMAKER)
-05151       let ByInv$(IN_ORIGIN)=S$(SIO_NEWORIGIN)
-05152       let ByInv$(IN_ERA)=S$(SIO_NEWERA)
-05153       let ByInv$(IN_CONDITION)=S$(SIO_NEWCONDITION)
-05154       let ByInv$(IN_SERIALNO)=S$(SIO_NEWSERIAL)
-05155       let ByInv$(IN_LOCATION)=S$(SIO_NEWLOCATION)
-05156       let ByInv(IN_COST)=F(PU_UNITCOST)
-05157       let ByInv(IN_PRICE)=val(S$(SIO_NEWPRICE))
-05158       let ByInv(IN_QTYONHAND)=F(PU_QTY)
-05159       let ByInv$(IN_TAXABLE)=uprc$(trim$(S$(SIO_NEWTAXABLE)))
-05160       if ByInv$(IN_TAXABLE)<>"N" then let ByInv$(IN_TAXABLE)="Y"
-05161       let ByInv$(IN_STATUS)="A"
-05162       let ByInv(IN_DATEADDED)=F(PU_PURCHDATE)
-05163       let ByInv$(IN_NOTES)=F$(PU_NOTES)
-05164       write #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv
-05165    end if
-05166    let F$(PU_ITEMID)=ItemId$
-05167    WritePurchaseDone: !
-05168 fnend
+05059 def fnBuySearch(;___,ItemId$*255)
+05060    let ItemId$=fnfm$("ITEMSEARCH","",0,0,"RESTOCK")
+05061    if len(trim$(ItemId$)) then
+05062       if fnValidateBuyItem(ItemId$) then let S$(SIO_BUYITEMID)=ItemId$
+05063    end if
+05064 fnend
+05065 !
+05066 ! Imported From "function\validatebuytype.brs"
+05067 ! function\validatebuytype.brs
+05068 ! Created on 10/10/2026
+05069 !
+05070 ! fnValidateBuyType - Validate event for the New Purchase screen's Type field. Only
+05071 !   C (clock) or P (part) can be bought; services can't. Returns 0 for anything else,
+05072 !   so ScreenIO puts the previous value back. The field has the AEX attribute, so
+05073 !   this runs as soon as the cursor leaves it.
+05074 !
+05075 def fnValidateBuyType(&FieldText$)
+05076    let FieldText$=uprc$(trim$(FieldText$))
+05077    if len(FieldText$)=1 and pos("CP",FieldText$) then
+05078       let fnValidateBuyType=1
+05079    else
+05080       let Msgbox("Type must be C (clock) or P (part). Services can't be purchased.","Type","OK","EXCL")
+05081    end if
+05082 fnend
+05083 !
+05084 ! Imported From "function\validatenotnegative.brs"
+05085 ! function\validatenotnegative.brs
+05086 ! Created on 10/10/2026
+05087 !
+05088 ! fnValidateNotNegative - Validate event for an amount (a price or cost): it must be
+05089 !   a number, zero or more. The text may carry the field's PIC formatting, such as
+05090 !   1,234.50, so commas are ignored. Returns 0 otherwise, so ScreenIO puts the
+05091 !   previous value back.
+05092 !
+05093 def fnValidateNotNegative(&FieldText$;___,Amount)
+05094    let Amount=val(srep$(FieldText$,",","")) conv NotNegativeBad
+05095    if Amount<0 then goto NotNegativeBad
+05096    let fnValidateNotNegative=1
+05097    goto NotNegativeDone
+05098    NotNegativeBad: !
+05099    let Msgbox("Please enter an amount of zero or more, for example 125.50.","Amount","OK","EXCL")
+05100    NotNegativeDone: !
+05101 fnend
+05102 !
+05103 ! Imported From "function\validatequantity.brs"
+05104 ! function\validatequantity.brs
+05105 ! Created on 10/10/2026
+05106 !
+05107 ! fnValidateQuantity - Validate event for a quantity bought: a whole number, more
+05108 !   than zero. Returns 0 otherwise, so ScreenIO puts the previous value back.
+05109 !
+05110 def fnValidateQuantity(&FieldText$;___,Number)
+05111    let Number=val(srep$(FieldText$,",","")) conv QuantityBad
+05112    if Number<=0 or int(Number)<>Number then goto QuantityBad
+05113    let fnValidateQuantity=1
+05114    goto QuantityDone
+05115    QuantityBad: !
+05116    let Msgbox("Please enter a whole number, more than zero.","Quantity","OK","EXCL")
+05117    QuantityDone: !
+05118 fnend
+05119 !
+05120 ! Imported From "function\savepurchase.brs"
+05121 ! function\savepurchase.brs
+05122 ! Created on 10/10/2026
+05123 !
+05124 ! fnSavePurchase - BUY's Save button. Every field checks its own value as it's typed
+05125 !   (its Validate function). What's left is what a single field can't check: a
+05126 !   Validate only runs when the field changes, so a required field never touched is
+05127 !   still blank; and a new item needs a description and a retail price while a
+05128 !   restock doesn't. When it's complete, ExitMode=SaveAndQuit runs the Write event
+05129 !   (fnWritePurchase) and saves.
+05130 !
+05131 def fnSavePurchase
+05132    if trim$(F$(PU_SOURCE))="" then
+05133       let Msgbox("Who did we buy it from? Please fill in Bought From.","Bought From","OK","EXCL")
+05134    else if trim$(S$(SIO_BUYITEMID))<>"" then
+05135       let ExitMode=SaveAndQuit
+05136    else if trim$(S$(SIO_NEWDESC))="" then
+05137       let Msgbox("Please give the new item a description, or fill in Restock Item # to add to an item we already have.","New Item","OK","EXCL")
+05138    else if val(S$(SIO_NEWPRICE))<=0 then
+05139       let Msgbox("Please give the new item a retail price.","New Item","OK","EXCL")
+05140    else
+05141       let ExitMode=SaveAndQuit
+05142    end if
+05143 fnend
+05144 !
+05145 ! Imported From "function\buyenter.brs"
+05146 ! function\buyenter.brs
+05147 ! Created on 10/10/2026
+05148 !
+05149 ! fnBuyEnter - Enter event for BUY (New Purchase). Opens inventory and the store
+05150 !   settings; fnBuyExit closes them. Inventory is opened OutIn, like every other open
+05151 !   of it in this session (BR error 0608 otherwise).
+05152 !
+05153 dim ByInv$(1)*1024, ByInv(1), ByInvFile
+05154 dim ByCfg$(1)*1024, ByCfg(1), ByCfgFile
+05155 !
+05156 def fnBuyEnter(mat Form$)
+05157    let ByInvFile=fnOpen("inventory",mat ByInv$,mat ByInv,mat Form$)
+05158    let ByCfgFile=fnOpen("storecfg",mat ByCfg$,mat ByCfg,mat Form$)
+05159 fnend
+05160 !
+05161 ! Imported From "function\buyinit.brs"
+05162 ! function\buyinit.brs
+05163 ! Created on 10/10/2026
+05164 !
+05165 ! fnBuyInit - Initialize event for BUY (New Purchase): the starting values for a new
+05166 !   purchase. It's dated today, for one item; a new item is a clock (what the store
+05167 !   buys most) and taxable (its check box starts checked) unless the clerk says
+05168 !   otherwise.
 05169 !
-05170 !
-05171 ! Imported From "function\buyexit.brs"
-05172 ! function\buyexit.brs
-05173 ! Created on 10/10/2026
-05174 !
-05175 ! fnBuyExit - Exit event for BUY. Closes the files fnBuyEnter opened.
+05170 def fnBuyInit
+05171    let F(PU_PURCHDATE)=days(date$("ccyymmdd"),"ccyymmdd")
+05172    let F(PU_QTY)=1
+05173    let S$(SIO_NEWTYPE)="C"
+05174    let S$(SIO_NEWTAXABLE)="Y"
+05175 fnend
 05176 !
-05177 def fnBuyExit
-05178    if ByInvFile then
-05179       let fnCloseFile(ByInvFile,"inventory")
-05180       let ByInvFile=0
-05181    end if
-05182    if ByCfgFile then
-05183       let fnCloseFile(ByCfgFile,"storecfg")
-05184       let ByCfgFile=0
-05185    end if
-05186 fnend
-05187 !
-05188 ! Imported From "function\nextinvid.brs"
-05189 ! function\nextinvid.brs
-05190 ! Created on 10/10/2026
-05191 !
-05192 ! fnNextInvId$ - The next free item number with a given prefix (CLK, PRT or SVC),
-05193 !   read from the inventory file open on InvFile: the highest number in use plus one,
-05194 !   as in CLK0013. Shared by BUY (new items bought) and INVEDIT (items added there).
-05195 !
-05196 dim NxInv$(1)*1024, NxInv(1)
-05197 !
-05198 def fnNextInvId$*8(InvFile,Prefix$*3;___,Highest)
-05199    restore #InvFile, key>=fnKey$(InvFile,Prefix$): nokey NextInvIdDone
-05200    do
-05201       read #InvFile, using form$(InvFile): mat NxInv$, mat NxInv eof NextInvIdDone
-05202       if NxInv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
-05203       let Highest=max(Highest,val(trim$(NxInv$(IN_ITEMID)(4:8)))) conv NextInvIdSkip
-05204       NextInvIdSkip: !
-05205    loop
-05206    NextInvIdDone: !
-05207    let fnNextInvId$=Prefix$&lpad$(str$(Highest+1),4,"0")
-05208 fnend
-05209 !
-05210 !
-05211 !
+05177 ! Imported From "function\writepurchase.brs"
+05178 ! function\writepurchase.brs
+05179 ! Created on 10/10/2026
+05180 !
+05181 ! fnWritePurchase - Write event for BUY. Runs just before ScreenIO saves the
+05182 !   purchase (fnSavePurchase has already checked it). Gives the purchase the next
+05183 !   purchase number from the store settings and works out its total, then updates
+05184 !   inventory: a restock adds the quantity and takes the latest unit cost; a new
+05185 !   item gets the next item number for its type (CLKnnnn or PRTnnnn) and is added.
+05186 !
+05187 ! #Include {buyenter}
+05188 ! #Include {nextinvid}
+05189 !
+05190 def fnWritePurchase(;___,ItemId$*8,Prefix$*3)
+05191    read #ByCfgFile, using form$(ByCfgFile), rec=1, reserve: mat ByCfg$, mat ByCfg norec WritePurchaseNoConfig
+05192    let F$(PU_PURCHASEID)="P"&lpad$(str$(ByCfg(CF_NEXTPURCHASE)),7,"0")
+05193    let ByCfg(CF_NEXTPURCHASE)+=1
+05194    rewrite #ByCfgFile, using form$(ByCfgFile): mat ByCfg$, mat ByCfg
+05195    release #ByCfgFile:
+05196    WritePurchaseNoConfig: !
+05197    let F(PU_TOTALCOST)=round(F(PU_UNITCOST)*F(PU_QTY),2)
+05198 !
+05199    if trim$(S$(SIO_BUYITEMID))<>"" then
+05200       let ItemId$=uprc$(trim$(S$(SIO_BUYITEMID)))
+05201       read #ByInvFile, using form$(ByInvFile), key=fnKey$(ByInvFile,ItemId$), reserve: mat ByInv$, mat ByInv nokey WritePurchaseDone
+05202       let ByInv(IN_QTYONHAND)+=F(PU_QTY)
+05203       let ByInv(IN_COST)=F(PU_UNITCOST)
+05204       rewrite #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv
+05205       release #ByInvFile:
+05206    else
+05207       if uprc$(trim$(S$(SIO_NEWTYPE)))="C" then
+05208          let Prefix$="CLK"
+05209       else
+05210          let Prefix$="PRT"
+05211       end if
+05212       let ItemId$=fnNextInvId$(ByInvFile,Prefix$)
+05213       mat ByInv$=("") : mat ByInv=(0)
+05214       let ByInv$(IN_ITEMID)=ItemId$
+05215       let ByInv$(IN_UPC)=S$(SIO_NEWUPC)
+05216       let ByInv$(IN_ITEMTYPE)=uprc$(trim$(S$(SIO_NEWTYPE)))
+05217       let ByInv$(IN_DESCRIPTION)=S$(SIO_NEWDESC)
+05218       let ByInv$(IN_CATEGORY)=S$(SIO_NEWCATEGORY)
+05219       let ByInv$(IN_MAKER)=S$(SIO_NEWMAKER)
+05220       let ByInv$(IN_ORIGIN)=S$(SIO_NEWORIGIN)
+05221       let ByInv$(IN_ERA)=S$(SIO_NEWERA)
+05222       let ByInv$(IN_CONDITION)=S$(SIO_NEWCONDITION)
+05223       let ByInv$(IN_SERIALNO)=S$(SIO_NEWSERIAL)
+05224       let ByInv$(IN_LOCATION)=S$(SIO_NEWLOCATION)
+05225       let ByInv(IN_COST)=F(PU_UNITCOST)
+05226       let ByInv(IN_PRICE)=val(S$(SIO_NEWPRICE))
+05227       let ByInv(IN_QTYONHAND)=F(PU_QTY)
+05228       let ByInv$(IN_TAXABLE)=uprc$(trim$(S$(SIO_NEWTAXABLE)))
+05229       if ByInv$(IN_TAXABLE)<>"N" then let ByInv$(IN_TAXABLE)="Y"
+05230       let ByInv$(IN_STATUS)="A"
+05231       let ByInv(IN_DATEADDED)=F(PU_PURCHDATE)
+05232       let ByInv$(IN_NOTES)=F$(PU_NOTES)
+05233       write #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv
+05234    end if
+05235    let F$(PU_ITEMID)=ItemId$
+05236    WritePurchaseDone: !
+05237 fnend
+05238 !
+05239 !
+05240 ! Imported From "function\buyexit.brs"
+05241 ! function\buyexit.brs
+05242 ! Created on 10/10/2026
+05243 !
+05244 ! fnBuyExit - Exit event for BUY. Closes the files fnBuyEnter opened.
+05245 !
+05246 def fnBuyExit
+05247    if ByInvFile then
+05248       let fnCloseFile(ByInvFile,"inventory")
+05249       let ByInvFile=0
+05250    end if
+05251    if ByCfgFile then
+05252       let fnCloseFile(ByCfgFile,"storecfg")
+05253       let ByCfgFile=0
+05254    end if
+05255 fnend
+05256 !
+05257 ! Imported From "function\nextinvid.brs"
+05258 ! function\nextinvid.brs
+05259 ! Created on 10/10/2026
+05260 !
+05261 ! fnNextInvId$ - The next free item number with a given prefix (CLK, PRT or SVC),
+05262 !   read from the inventory file open on InvFile: the highest number in use plus one,
+05263 !   as in CLK0013. Shared by BUY (new items bought) and INVEDIT (items added there).
+05264 !
+05265 dim NxInv$(1)*1024, NxInv(1)
+05266 !
+05267 def fnNextInvId$*8(InvFile,Prefix$*3;___,Highest)
+05268    restore #InvFile, key>=fnKey$(InvFile,Prefix$): nokey NextInvIdDone
+05269    do
+05270       read #InvFile, using form$(InvFile): mat NxInv$, mat NxInv eof NextInvIdDone
+05271       if NxInv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
+05272       let Highest=max(Highest,val(trim$(NxInv$(IN_ITEMID)(4:8)))) conv NextInvIdSkip
+05273       NextInvIdSkip: !
+05274    loop
+05275    NextInvIdDone: !
+05276    let fnNextInvId$=Prefix$&lpad$(str$(Highest+1),4,"0")
+05277 fnend
+05278 !
+05279 !
+05280 !
 85000    def library fnCheckStringFunction(Function$*255)
-85001    if Function$ = "{validatebuyitem}" then
+85001    if Function$ = "{validatenotblank}" then
 85002       let fnCheckStringFunction = 0
-85003    else if Function$ = "{buysearch}" then
+85003    else if Function$ = "{validatebuyitem}" then
 85004       let fnCheckStringFunction = 0
-85005    else if Function$ = "{savepurchase}" then
+85005    else if Function$ = "{buysearch}" then
 85006       let fnCheckStringFunction = 0
-85007       else if Function$ = "{buyenter}" then
-85008          let fnCheckStringFunction = 0
-85009       else if Function$ = "{buyinit}" then
-85010          let fnCheckStringFunction = 0
-85011       else if Function$ = "{writepurchase}" then
-85012          let fnCheckStringFunction = 0
-85013       else if Function$ = "{buyexit}" then
-85014          let fnCheckStringFunction = 0
-85015       else
-85016          if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
-85017             print "Function ("&function$&") on screen BUY is not Supported: The library is out of date or fn not found."
-85018          end if
-85019       end if
-85020    fnend
-85021 !
-85022 !
+85007    else if Function$ = "{validatebuytype}" then
+85008       let fnCheckStringFunction = 0
+85009    else if Function$ = "{validatenotnegative}" then
+85010       let fnCheckStringFunction = 0
+85011    else if Function$ = "{validatequantity}" then
+85012       let fnCheckStringFunction = 0
+85013    else if Function$ = "{validatenotnegative}" then
+85014       let fnCheckStringFunction = 0
+85015    else if Function$ = "{savepurchase}" then
+85016       let fnCheckStringFunction = 0
+85017       else if Function$ = "{buyenter}" then
+85018          let fnCheckStringFunction = 0
+85019       else if Function$ = "{buyinit}" then
+85020          let fnCheckStringFunction = 0
+85021       else if Function$ = "{writepurchase}" then
+85022          let fnCheckStringFunction = 0
+85023       else if Function$ = "{buyexit}" then
+85024          let fnCheckStringFunction = 0
+85025       else
+85026          if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
+85027             print "Function ("&function$&") on screen BUY is not Supported: The library is out of date or fn not found."
+85028          end if
+85029       end if
+85030    fnend
+85031 !
+85032 !
 89000    def library fnFunctionSwitch(Function$*255,mat Subscripts$,mat PassedData$,&FieldIndex,&FieldText$,&ControlIndex,&Key$,&ExitMode,&RepopulateListviews,&RedrawListviews,&CurrentField,&CurrentField$,&Prefix$,&CurrentKey$,&CurrentRec,&ParentKey$,&DataFile,Window,&CurrentRow,LockUser$,&Path$,&Selecting,mat Disk_F$,mat Disk_F,&OnRead,&TryToContinue,&DisplayOnly,&Active,&RedrawFrames,&RedrawScreens,&RepopulateCombo,mat F$,mat F, mat S$,mat CnvrtIn$,mat FieldsSSubs$,mat FieldsNSubs$,mat FieldName$,mat ControlName$,mat ScreenSubs$,mat Function$,mat SpecWidth,mat Form$,mat ScreenData$,mat ScreenLongData$,mat ScreenData,mat ReturnData$,mat ControlSpec$)
 89010       let fnFunctionSwitch = fnFS(Function$,mat Subscripts$,mat PassedData$,FieldIndex,FieldText$,ControlIndex,Key$,ExitMode,RepopulateListviews,RedrawListviews,CurrentField,CurrentField$,Prefix$,CurrentKey$,CurrentRec,ParentKey$,DataFile,Window,CurrentRow,LockUser$,Path$,Selecting,mat Disk_F$,mat Disk_F,OnRead,TryToContinue,DisplayOnly,Active,RedrawFrames,RedrawScreens,RepopulateCombo,mat F$,mat F, mat S$,mat CnvrtIn$,mat FieldsSSubs$,mat FieldsNSubs$,mat FieldName$,mat ControlName$,mat ScreenSubs$,mat Function$,mat SpecWidth,mat Form$,mat ScreenData$,mat ScreenLongData$,mat ScreenData,mat ReturnData$,mat ControlSpec$)
 89020    fnend
@@ -334,32 +413,42 @@
 92012       for Index=1 to udim(mat Subscripts$) : execute (Subscripts$(Index)) : next Index
 92013    end if
 92014 !
-92015    if Function$ = "{validatebuyitem}" then
-92016       let ReturnValue = fnValidateBuyItem(FieldText$)
-92017    else if Function$ = "{buysearch}" then
-92018       let ReturnValue = fnBuySearch
-92019    else if Function$ = "{savepurchase}" then
-92020       let ReturnValue = fnSavePurchase
-92021    else if Function$ = "{buyenter}" then
-92022       let ReturnValue = fnBuyEnter(mat Form$)
-92023    else if Function$ = "{buyinit}" then
-92024       let ReturnValue = fnBuyInit
-92025    else if Function$ = "{writepurchase}" then
-92026       let ReturnValue = fnWritePurchase
-92027    else if Function$ = "{buyexit}" then
-92028       let ReturnValue = fnBuyExit
-92029    else
-92030       if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
-92031          print "Function ("&function$&") on screen BUY is not Supported: The library is out of date or fn not found."
-92032       end if
-92033    end if
-92034 !
-92035    if ~DataIsInside or Function$="{{GetData}}" then
-92036       let fnPushData(2)
-92037       let DataIsInside=0
-92038    end if
-92039 return
-92040 !
+92015    if Function$ = "{validatenotblank}" then
+92016       let ReturnValue = fnValidateNotBlank(FieldText$)
+92017    else if Function$ = "{validatebuyitem}" then
+92018       let ReturnValue = fnValidateBuyItem(FieldText$)
+92019    else if Function$ = "{buysearch}" then
+92020       let ReturnValue = fnBuySearch
+92021    else if Function$ = "{validatebuytype}" then
+92022       let ReturnValue = fnValidateBuyType(FieldText$)
+92023    else if Function$ = "{validatenotnegative}" then
+92024       let ReturnValue = fnValidateNotNegative(FieldText$)
+92025    else if Function$ = "{validatequantity}" then
+92026       let ReturnValue = fnValidateQuantity(FieldText$)
+92027    else if Function$ = "{validatenotnegative}" then
+92028       let ReturnValue = fnValidateNotNegative(FieldText$)
+92029    else if Function$ = "{savepurchase}" then
+92030       let ReturnValue = fnSavePurchase
+92031    else if Function$ = "{buyenter}" then
+92032       let ReturnValue = fnBuyEnter(mat Form$)
+92033    else if Function$ = "{buyinit}" then
+92034       let ReturnValue = fnBuyInit
+92035    else if Function$ = "{writepurchase}" then
+92036       let ReturnValue = fnWritePurchase
+92037    else if Function$ = "{buyexit}" then
+92038       let ReturnValue = fnBuyExit
+92039    else
+92040       if Function$<>"{{GetData}}" and Function$<>"{{SetData}}" then
+92041          print "Function ("&function$&") on screen BUY is not Supported: The library is out of date or fn not found."
+92042       end if
+92043    end if
+92044 !
+92045    if ~DataIsInside or Function$="{{GetData}}" then
+92046       let fnPushData(2)
+92047       let DataIsInside=0
+92048    end if
+92049 return
+92050 !
 99000 OPEN: !   ***** Function  To Call Library Openfile And Proc Subs
 99010    def Fnopen(Filename$*255, Mat F$, Mat F, Mat Form$; Inputonly, Keynum, Dont_Sort_Subs, Path$*255, Mat Descr$, Mat Field_Widths,Supress_Prompt,Ignore_Errors,Suppress_Log,mat DateFmt$,___,Index)
 99020       dim _FileIOSubs$(1)*800, _loadedsubs$(1)*32

@@ -120,7 +120,7 @@ fnend
 def fnBuildBuy
    let fnStartScreen("BUY","purchase",23,90,"FFFFFF","50331A",1,"New Purchase","Records one purchase: a new item for inventory, or a restock of an item we have. Opened by PURCHASES.","{buyenter}","{buyexit}","","{writepurchase}","{buyinit}")
    let fnCtl("caption","Caption_SOURCE","","Bought From:",2,2,16,12,1,"","","R")
-   let fnCtl("C","Field_SOURCE","SOURCE","Caption_SOURCE",2,19,40,40,1,"")
+   let fnCtl("C","Field_SOURCE","SOURCE","Caption_SOURCE",2,19,40,40,1,"{validatenotblank}")
    let fnCtl("caption","Caption_SOURCEINFO","","Seller Contact:",3,2,16,15,1,"","","R")
    let fnCtl("C","Field_SOURCEINFO","SOURCEINFO","Caption_SOURCEINFO",3,19,40,60,1,"")
    let fnCtl("caption","Caption_PURCHDATE","","Date:",4,2,16,5,1,"","","R")
@@ -133,7 +133,7 @@ def fnBuildBuy
    let fnCtl("caption","Caption_NewItem","","- or a new item -",7,19,30,17,1,"")
 
    let fnCtl("caption","Caption_NewType","","Type (C/P):",8,2,16,11,1,"","","R")
-   let fnCtl("C","NewType","","Caption_NewType",8,19,3,1,1,"","","U")
+   let fnCtl("C","NewType","","Caption_NewType",8,19,3,1,1,"{validatebuytype}","","U","",0,"","AEX")
    let fnCtl("caption","Caption_NewDesc","","Description:",9,2,16,12,1,"","","R")
    let fnCtl("C","NewDesc","","Caption_NewDesc",9,19,50,60,1,"")
    let fnCtl("caption","Caption_NewCategory","","Category:",10,2,16,9,1,"","","R")
@@ -153,14 +153,13 @@ def fnBuildBuy
    let fnCtl("caption","Caption_NewUpc","","UPC:",13,40,5,4,1,"","","R")
    let fnCtl("C","NewUpc","","Caption_NewUpc",13,46,16,14,1,"")
    let fnCtl("caption","Caption_NewPrice","","Retail Price:",14,2,16,13,1,"","","R")
-   let fnCtl("C","NewPrice","","Caption_NewPrice",14,19,14,14,1,"","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
-   let fnCtl("caption","Caption_NewTaxable","","Taxable (Y/N):",14,36,15,14,1,"","","R")
-   let fnCtl("C","NewTaxable","","Caption_NewTaxable",14,52,3,1,1,"","","U")
+   let fnCtl("C","NewPrice","","Caption_NewPrice",14,19,14,14,1,"{validatenotnegative}","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("check","NewTaxable","","Taxable",14,38,10,8,1,"","","","",0,"","","Y","N")
 
    let fnCtl("caption","Caption_QTY","","Quantity:",16,2,16,9,1,"","","R")
-   let fnCtl("C","Field_QTY","QTY","Caption_QTY",16,19,6,4,1,"","","R")
+   let fnCtl("C","Field_QTY","QTY","Caption_QTY",16,19,6,4,1,"{validatequantity}","","R")
    let fnCtl("caption","Caption_UNITCOST","","Unit Cost:",17,2,16,10,1,"","","R")
-   let fnCtl("C","Field_UNITCOST","UNITCOST","Caption_UNITCOST",17,19,14,14,1,"","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("C","Field_UNITCOST","UNITCOST","Caption_UNITCOST",17,19,14,14,1,"{validatenotnegative}","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("caption","Caption_NOTES","","Notes:",18,2,16,6,1,"","","R")
    let fnCtl("C","Field_NOTES","NOTES","Caption_NOTES",18,19,68,255,1,"")
 
@@ -193,11 +192,11 @@ def fnBuildInvEdit
    let fnCtl("caption","Caption_ITEMID","","Item #:",2,2,16,7,1,"","","R")
    let fnCtl("C","Field_ITEMID","ITEMID","Caption_ITEMID",2,19,10,8,1,"","","","",1)
    let fnCtl("caption","Caption_ITEMTYPE","","Type (C/P/S):",2,38,14,13,1,"","","R")
-   let fnCtl("C","Field_ITEMTYPE","ITEMTYPE","Caption_ITEMTYPE",2,53,3,1,1,"","","U")
+   let fnCtl("C","Field_ITEMTYPE","ITEMTYPE","Caption_ITEMTYPE",2,53,3,1,1,"{validateitemtype}","","U","",0,"","AEX")
    let fnCtl("caption","Caption_STATUS","","Status (A/H/I):",2,58,15,15,1,"","","R")
-   let fnCtl("C","Field_STATUS","STATUS","Caption_STATUS",2,74,3,1,1,"","","U")
+   let fnCtl("C","Field_STATUS","STATUS","Caption_STATUS",2,74,3,1,1,"{validateitemstatus}","","U","",0,"","AEX")
    let fnCtl("caption","Caption_DESCRIPTION","","Description:",3,2,16,12,1,"","","R")
-   let fnCtl("C","Field_DESCRIPTION","DESCRIPTION","Caption_DESCRIPTION",3,19,60,60,1,"")
+   let fnCtl("C","Field_DESCRIPTION","DESCRIPTION","Caption_DESCRIPTION",3,19,60,60,1,"{validatenotblank}")
    let fnCtl("caption","Caption_CATEGORY","","Category:",4,2,16,9,1,"","","R")
    let fnCtl("C","Field_CATEGORY","CATEGORY","Caption_CATEGORY",4,19,14,12,1,"")
    let fnCtl("caption","Caption_MAKER","","Maker:",4,38,14,6,1,"","","R")
@@ -215,16 +214,15 @@ def fnBuildInvEdit
    let fnCtl("caption","Caption_UPC","","UPC:",7,38,14,4,1,"","","R")
    let fnCtl("C","Field_UPC","UPC","Caption_UPC",7,53,16,14,1,"")
    let fnCtl("caption","Caption_PRICE","","Retail Price:",9,2,16,13,1,"","","R")
-   let fnCtl("C","Field_PRICE","PRICE","Caption_PRICE",9,19,14,14,1,"","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("C","Field_PRICE","PRICE","Caption_PRICE",9,19,14,14,1,"{validatenotnegative}","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("caption","Caption_COST","","Unit Cost:",9,38,14,10,1,"","","R")
-   let fnCtl("C","Field_COST","COST","Caption_COST",9,53,14,14,1,"","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("C","Field_COST","COST","Caption_COST",9,53,14,14,1,"{validatenotnegative}","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("caption","Caption_QTYONHAND","","On Hand:",10,2,16,8,1,"","","R")
-   let fnCtl("C","Field_QTYONHAND","QTYONHAND","Caption_QTYONHAND",10,19,8,4,1,"","","R")
+   let fnCtl("C","Field_QTYONHAND","QTYONHAND","Caption_QTYONHAND",10,19,8,4,1,"{validatewholenumber}","","R")
    let fnCtl("caption","Caption_MAXPERSALE","","Most per Sale:",10,38,14,14,1,"","","R")
-   let fnCtl("C","Field_MAXPERSALE","MAXPERSALE","Caption_MAXPERSALE",10,53,8,4,1,"","","R")
+   let fnCtl("C","Field_MAXPERSALE","MAXPERSALE","Caption_MAXPERSALE",10,53,8,4,1,"{validatewholenumber}","","R")
    let fnCtl("caption","Caption_MaxHint","","(0 = no limit)",10,62,16,14,1,"")
-   let fnCtl("caption","Caption_TAXABLE","","Taxable (Y/N):",11,2,16,14,1,"","","R")
-   let fnCtl("C","Field_TAXABLE","TAXABLE","Caption_TAXABLE",11,19,3,1,1,"","","U")
+   let fnCtl("check","Field_TAXABLE","TAXABLE","Taxable",11,19,10,8,1,"","","","",0,"","","Y","N")
    let fnCtl("caption","Caption_DATEADDED","","Date Added:",12,2,16,11,1,"","","R")
    let fnCtl("C","Field_DATEADDED","DATEADDED","Caption_DATEADDED",12,19,12,10,1,"","","","DATE(mm/dd/ccyy)",1)
    let fnCtl("caption","Caption_LASTSOLD","","Last Sold:",12,38,14,10,1,"","","R")
@@ -336,7 +334,7 @@ fnend
 ! boxes and listviews get the "W" system colors (black on white). Captions, pictures,
 ! listview columns and child screens are left blank, so captions inherit the
 ! screen's own FGCOLOR (white).
-def fnCtl(Type$,Name$*50,Field$*50,Text$*255,Row,Col,Width,Spec,Height,Function$*255;Parent$*20,Justify$,CnvrtIn$*255,Protected,Picture$*255)
+def fnCtl(Type$,Name$*50,Field$*50,Text$*255,Row,Col,Width,Spec,Height,Function$*255;Parent$*20,Justify$,CnvrtIn$*255,Protected,Picture$*255,Attr$*128,TrueValue$*60,FalseValue$*60)
    mat Screenfld$=("") : mat Screenfld=(0)
    if Parent$="" then
       #Select# Type$ #Case# "caption"
@@ -363,6 +361,9 @@ def fnCtl(Type$,Name$*50,Field$*50,Text$*255,Row,Col,Width,Spec,Height,Function$
    let Screenfld$(SF_JUSTIFY)=Justify$
    let Screenfld$(SF_CNVRTIN)=CnvrtIn$
    let Screenfld$(SF_PICTURE)=Picture$
+   let Screenfld$(SF_ATTR)=Attr$
+   let Screenfld$(SF_TRUEVALUE)=TrueValue$
+   let Screenfld$(SF_FALSEVALUE)=FalseValue$
    if Type$="C" or Type$="button" or Type$="LISTVIEW" or Type$="FILTER" then
       let Screenfld$(SF_FGCOLOR)=Screenfld$(SF_BGCOLOR)="W     "
    else
