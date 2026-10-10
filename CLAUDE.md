@@ -86,7 +86,10 @@ new to git, so Claude runs the git mechanics and explains them.
 - Lessons that change the **context kit** (`context/dev/`, `context/br_tree/`, `context/README.md`,
   `context/ERRORS.md`, `context/app/conventions.md`, exemplars/examples, or this git-workflow
   section) are committed **separately**, never mixed with app changes, with a message starting
-  `kit:`.
+  `kit:`. Before each `kit:` commit, check `git status` that **only** kit files are staged: an app
+  change left staged from earlier (a `git rm`, say) gets swept into the kit commit otherwise.
+- `git cherry` lists a promoted commit as still pending when its app-repo original carried an
+  extra file the template copy dropped. Compare by commit title before promoting it again.
 - Promoting to the template happens only when the owner asks. In the template's own working copy
   (`C:\Everything\Work\Training`), `git fetch` this app's folder, `git cherry-pick` the `kit:`
   commits, show the owner the list, and push to Basic-BR-Config only after they approve.
