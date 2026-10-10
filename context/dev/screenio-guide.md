@@ -209,6 +209,11 @@ error 0630 (owner, confirmed 2026-10-10). The house way is an explicit open at t
 start program, e.g. for 24 x 96 screens: `open #0: "rows=27,cols=100, N=/#FFFFFF:#3C2614",display,outin`.
 The default #0 (24 x 80) is too small for any tab screen wider than about 76 columns.
 
+**Give tab screens `BORDER=0`.** Each screen is run at row 1, column 1 of its tab window, which is
+exactly the screen's size; a border adds a row and a column on every side, so a bordered screen
+is "bigger than its parent window" and ScreenIO stops with that message. The tab is the frame.
+A real app's tab screens confirm it: all `BORDER=0`, all one size (33 x 108).
+
 This is a genuinely reusable pattern for any ScreenIO app that wants a tabbed main-menu shell; the
 *specific* tabs, and which employee sees which, are naturally 100% app-defined business logic —
 worth its own `app/`-tier note if a given app's tab-visibility logic is non-trivial enough to
