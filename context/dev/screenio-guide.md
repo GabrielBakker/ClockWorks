@@ -597,6 +597,13 @@ designing a parent screen whose embedded child lists the parent record's detail 
   accepts the (possibly modified) `FieldText$`; `0`/`""` throws the typing away and puts back the
   value that was there before. To always clear a box after acting on it (an item-entry box), set
   `FieldText$=""` and return `1`, whether the action succeeded or not.
+- **Validate a field where it's typed, not at Save** (owner's house style). Give a field with a
+  fixed set of values (a one-letter type or status code) its own Validate function that returns
+  0 for anything not allowed, and put the BR attribute **`AEX`** on the control (`ATTR$`): the
+  field then auto-exits as soon as it's filled, so the Validate runs the moment the cursor leaves
+  it, and the record can never hold a bad value. The Save button then needn't check that field
+  again. A Validate only runs when the field *changes*, so a new record's Initialize event should
+  give such a field a valid default instead of leaving it blank.
 - **Exit buttons use `let ExitMode=QuitOnly`** (or another exit mode), never a custom function;
   ScreenIO then runs the screen's **Exit event** before closing. The Exit event is for cleanup,
   such as closing files the Enter event opened.
