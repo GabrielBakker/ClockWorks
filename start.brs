@@ -11,6 +11,11 @@
    library "run" : fnRunTabs
    dim Screen$(2)*18, Caption$(2)*20
 
+   ! The main window must be at least 2 rows and 2 columns bigger than the tabs, which
+   ! open at row 2, column 2 and take the largest tab screen's size (24 x 96), or the
+   ! tabs fail to open with error 0630.
+   open #0: "rows=27,cols=100, N=/#FFFFFF:#3C2614",display,outin
+
    let Screen$(1)="REGISTER" : let Caption$(1)="Sales"
    let Screen$(2)="PURCHASES" : let Caption$(2)="Purchases"
    !            Screens      Captions      Rows Cols Inside Predraw Msg  Row Col Start BlockESC ExitOnCancel
