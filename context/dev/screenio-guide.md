@@ -202,6 +202,13 @@ record, and every tab edits that one in-memory copy. This is confirmed from the 
 Without `FileLay$`, none of this happens: each screen is called with `Key$`/`RecordNum` and does its
 own reading and writing.
 
+**Size window #0 before calling `fnRunTabs`.** The tab windows open at `srow=2,scol=2` and, with
+`Rows`/`Cols` of 0, take the largest tab screen's size. Window #0 must be at least **2 rows and 2
+columns bigger** than that, to leave room for the tab border, or opening the tabs fails with BR
+error 0630 (owner, confirmed 2026-10-10). The house way is an explicit open at the top of the
+start program, e.g. for 24 x 96 screens: `open #0: "rows=27,cols=100, N=/#FFFFFF:#3C2614",display,outin`.
+The default #0 (24 x 80) is too small for any tab screen wider than about 76 columns.
+
 This is a genuinely reusable pattern for any ScreenIO app that wants a tabbed main-menu shell; the
 *specific* tabs, and which employee sees which, are naturally 100% app-defined business logic —
 worth its own `app/`-tier note if a given app's tab-visibility logic is non-trivial enough to
