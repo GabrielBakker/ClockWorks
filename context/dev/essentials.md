@@ -441,6 +441,11 @@ overflowed or errored upstream, not that the program is genuinely waiting on the
   folder location. This makes applications portable without code changes but coders need to 
   be aware of it when creating an `OPEN` statement.
 
+- **Read a FileIO record only into arrays FileIO sized.** `fnOpen`/`fnOpenFile` resizes the
+  `mat F$`/`mat F` you pass it to fit the layout. A `READ #n, USING form$(n): MAT X$, MAT X` into
+  any *other* arrays (say `DIM X$(1)*1024, X(1)`, sized nowhere else) fails with BR error 0726,
+  "data mapping error". A shared helper that reads a file another routine opened should take
+  that routine's arrays as `MAT` parameters (confirmed 2026-10-10).
 - **A `C n` field comes back padded with trailing spaces, so compare it trimmed.** A value
   written to a `C 6` field as `"CASH"` reads back as `"CASH  "`, so `IF M$="CASH"` is false.
   Compare `trim$(M$)="CASH"` (or pad the literal). It fails silently: a report that totaled
