@@ -27,6 +27,8 @@
    let fnBuildTender
    let fnBuildBuy
    let fnBuildPurchases
+   let fnBuildInvEdit
+   let fnBuildInventory
    let fnBuildRegister
 
    let fnCloseFile(Screenio,"screenio")
@@ -183,6 +185,74 @@ def fnBuildPurchases
    let fnCtl("LISTCHLD","Field_QTY","QTY","Qty",1,0,5,5,1,"","LV1","R","N 5")
    let fnCtl("LISTCHLD","Field_UNITCOST","UNITCOST","Unit Cost",1,0,10,14,1,"","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
    let fnCtl("LISTCHLD","Field_TOTALCOST","TOTALCOST","Total",1,0,10,14,1,"","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+fnend
+
+! ----- INVEDIT: add or edit one inventory item (opened by the INVENTORY tab) ----------
+def fnBuildInvEdit
+   let fnStartScreen("INVEDIT","inventory",17,84,"FFFFFF","50331A",1,"Inventory Item","Adds or edits one inventory item. Opened by the INVENTORY tab; new clocks and parts normally come in through Purchases.","","","","{writeinvitem}","{initinvitem}")
+   let fnCtl("caption","Caption_ITEMID","","Item #:",2,2,16,7,1,"","","R")
+   let fnCtl("C","Field_ITEMID","ITEMID","Caption_ITEMID",2,19,10,8,1,"","","","",1)
+   let fnCtl("caption","Caption_ITEMTYPE","","Type (C/P/S):",2,38,14,13,1,"","","R")
+   let fnCtl("C","Field_ITEMTYPE","ITEMTYPE","Caption_ITEMTYPE",2,53,3,1,1,"","","U")
+   let fnCtl("caption","Caption_STATUS","","Status (A/H/I):",2,58,15,15,1,"","","R")
+   let fnCtl("C","Field_STATUS","STATUS","Caption_STATUS",2,74,3,1,1,"","","U")
+   let fnCtl("caption","Caption_DESCRIPTION","","Description:",3,2,16,12,1,"","","R")
+   let fnCtl("C","Field_DESCRIPTION","DESCRIPTION","Caption_DESCRIPTION",3,19,60,60,1,"")
+   let fnCtl("caption","Caption_CATEGORY","","Category:",4,2,16,9,1,"","","R")
+   let fnCtl("C","Field_CATEGORY","CATEGORY","Caption_CATEGORY",4,19,14,12,1,"")
+   let fnCtl("caption","Caption_MAKER","","Maker:",4,38,14,6,1,"","","R")
+   let fnCtl("C","Field_MAKER","MAKER","Caption_MAKER",4,53,28,30,1,"")
+   let fnCtl("caption","Caption_ORIGIN","","Origin:",5,2,16,7,1,"","","R")
+   let fnCtl("C","Field_ORIGIN","ORIGIN","Caption_ORIGIN",5,19,16,20,1,"")
+   let fnCtl("caption","Caption_ERA","","Era:",5,38,14,4,1,"","","R")
+   let fnCtl("C","Field_ERA","ERA","Caption_ERA",5,53,14,12,1,"")
+   let fnCtl("caption","Caption_CONDITION","","Condition:",6,2,16,10,1,"","","R")
+   let fnCtl("C","Field_CONDITION","CONDITION","Caption_CONDITION",6,19,12,10,1,"")
+   let fnCtl("caption","Caption_SERIALNO","","Serial #:",6,38,14,9,1,"","","R")
+   let fnCtl("C","Field_SERIALNO","SERIALNO","Caption_SERIALNO",6,53,20,20,1,"")
+   let fnCtl("caption","Caption_LOCATION","","Location:",7,2,16,9,1,"","","R")
+   let fnCtl("C","Field_LOCATION","LOCATION","Caption_LOCATION",7,19,20,20,1,"")
+   let fnCtl("caption","Caption_UPC","","UPC:",7,38,14,4,1,"","","R")
+   let fnCtl("C","Field_UPC","UPC","Caption_UPC",7,53,16,14,1,"")
+   let fnCtl("caption","Caption_PRICE","","Retail Price:",9,2,16,13,1,"","","R")
+   let fnCtl("C","Field_PRICE","PRICE","Caption_PRICE",9,19,14,14,1,"","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("caption","Caption_COST","","Unit Cost:",9,38,14,10,1,"","","R")
+   let fnCtl("C","Field_COST","COST","Caption_COST",9,53,14,14,1,"","","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("caption","Caption_QTYONHAND","","On Hand:",10,2,16,8,1,"","","R")
+   let fnCtl("C","Field_QTYONHAND","QTYONHAND","Caption_QTYONHAND",10,19,8,4,1,"","","R")
+   let fnCtl("caption","Caption_MAXPERSALE","","Most per Sale:",10,38,14,14,1,"","","R")
+   let fnCtl("C","Field_MAXPERSALE","MAXPERSALE","Caption_MAXPERSALE",10,53,8,4,1,"","","R")
+   let fnCtl("caption","Caption_MaxHint","","(0 = no limit)",10,62,16,14,1,"")
+   let fnCtl("caption","Caption_TAXABLE","","Taxable (Y/N):",11,2,16,14,1,"","","R")
+   let fnCtl("C","Field_TAXABLE","TAXABLE","Caption_TAXABLE",11,19,3,1,1,"","","U")
+   let fnCtl("caption","Caption_DATEADDED","","Date Added:",12,2,16,11,1,"","","R")
+   let fnCtl("C","Field_DATEADDED","DATEADDED","Caption_DATEADDED",12,19,12,10,1,"","","","DATE(mm/dd/ccyy)",1)
+   let fnCtl("caption","Caption_LASTSOLD","","Last Sold:",12,38,14,10,1,"","","R")
+   let fnCtl("C","Field_LASTSOLD","LASTSOLD","Caption_LASTSOLD",12,53,12,10,1,"","","","DATE(mm/dd/ccyy)",1)
+   let fnCtl("caption","Caption_NOTES","","Notes:",13,2,16,6,1,"","","R")
+   let fnCtl("C","Field_NOTES","NOTES","Caption_NOTES",13,19,62,255,1,"")
+   let fnCtl("button","SaveButton","","Save",15,54,12,4,1,"{saveinvitem}")
+   let fnCtl("button","CancelButton","","Cancel",15,69,12,6,1,"let ExitMode=QuitOnly")
+fnend
+
+! ----- INVENTORY: the Inventory tab - everything we sell, with stock on hand ----------
+def fnBuildInventory
+   let fnStartScreen("INVENTORY","inventory",24,96,"FFFFFF","6B4423",0,"","The Inventory tab: every item with stock on hand, price and status; Edit Item and Add Item open INVEDIT. Opened by start.brs as a tab.")
+   let fnCtl("caption","Title","","Everything we sell, with stock on hand",2,3,40,38,1,"")
+   let fnCtl("button","EditItemButton","","Edit Item...",2,58,16,12,1,"[INVEDIT]Key$=CurrentKey$")
+   let fnCtl("button","AddItemButton","","Add Item...",2,77,16,11,1,"[INVEDIT]")
+   let fnCtl("P","SearchPic_1","","",4,3,2,0,1,"","","","",0,"images\search.png")
+   let fnCtl("FILTER","","","SearchPic_1",4,6,50,60,1,"","LV1")
+   let fnCtl("LISTVIEW","","","",6,3,90,1,17,"","LV1")
+   let fnCtl("LISTCHLD","Field_ITEMID","ITEMID","Item",1,0,8,8,1,"","LV1")
+   let fnCtl("LISTCHLD","Field_ITEMTYPE","ITEMTYPE","T",1,0,2,1,1,"","LV1","C")
+   let fnCtl("LISTCHLD","Field_DESCRIPTION","DESCRIPTION","Description",1,0,26,60,1,"","LV1")
+   let fnCtl("LISTCHLD","Field_CATEGORY","CATEGORY","Category",1,0,12,12,1,"","LV1")
+   let fnCtl("LISTCHLD","Field_QTYONHAND","QTYONHAND","On Hand",1,0,7,5,1,"","LV1","R","N 5")
+   let fnCtl("LISTCHLD","Field_PRICE","PRICE","Price",1,0,10,14,1,"","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("LISTCHLD","Field_COST","COST","Cost",1,0,10,14,1,"","LV1","R","PIC(ZZZ,ZZZ,ZZ#.##)")
+   let fnCtl("LISTCHLD","Field_STATUS","STATUS","St",1,0,3,1,1,"","LV1","C")
+   let fnCtl("LISTCHLD","Field_LOCATION","LOCATION","Location",1,0,10,20,1,"","LV1")
 fnend
 
 ! ----- REGISTER: the cash register (main screen) ------------------------------------

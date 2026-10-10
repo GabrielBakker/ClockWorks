@@ -141,90 +141,100 @@
 05115 !   inventory: a restock adds the quantity and takes the latest unit cost; a new
 05116 !   item gets the next item number for its type (CLKnnnn or PRTnnnn) and is added.
 05117 !
-05118 ! fnNextItemId$ - The next free item number with a given prefix.
-05119 !
-05120 ! #Include {buyenter}
-05121 !
-05122 def fnWritePurchase(;___,ItemId$*8,Prefix$*3)
-05123    read #ByCfgFile, using form$(ByCfgFile), rec=1, reserve: mat ByCfg$, mat ByCfg norec WritePurchaseNoConfig
-05124    let F$(PU_PURCHASEID)="P"&lpad$(str$(ByCfg(CF_NEXTPURCHASE)),7,"0")
-05125    let ByCfg(CF_NEXTPURCHASE)+=1
-05126    rewrite #ByCfgFile, using form$(ByCfgFile): mat ByCfg$, mat ByCfg
-05127    release #ByCfgFile:
-05128    WritePurchaseNoConfig: !
-05129    let F(PU_TOTALCOST)=round(F(PU_UNITCOST)*F(PU_QTY),2)
-05130 !
-05131    if trim$(S$(SIO_BUYITEMID))<>"" then
-05132       let ItemId$=uprc$(trim$(S$(SIO_BUYITEMID)))
-05133       read #ByInvFile, using form$(ByInvFile), key=fnKey$(ByInvFile,ItemId$), reserve: mat ByInv$, mat ByInv nokey WritePurchaseDone
-05134       let ByInv(IN_QTYONHAND)+=F(PU_QTY)
-05135       let ByInv(IN_COST)=F(PU_UNITCOST)
-05136       rewrite #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv
-05137       release #ByInvFile:
-05138    else
-05139       if uprc$(trim$(S$(SIO_NEWTYPE)))="C" then
-05140          let Prefix$="CLK"
-05141       else
-05142          let Prefix$="PRT"
-05143       end if
-05144       let ItemId$=fnNextItemId$(Prefix$)
-05145       mat ByInv$=("") : mat ByInv=(0)
-05146       let ByInv$(IN_ITEMID)=ItemId$
-05147       let ByInv$(IN_UPC)=S$(SIO_NEWUPC)
-05148       let ByInv$(IN_ITEMTYPE)=uprc$(trim$(S$(SIO_NEWTYPE)))
-05149       let ByInv$(IN_DESCRIPTION)=S$(SIO_NEWDESC)
-05150       let ByInv$(IN_CATEGORY)=S$(SIO_NEWCATEGORY)
-05151       let ByInv$(IN_MAKER)=S$(SIO_NEWMAKER)
-05152       let ByInv$(IN_ORIGIN)=S$(SIO_NEWORIGIN)
-05153       let ByInv$(IN_ERA)=S$(SIO_NEWERA)
-05154       let ByInv$(IN_CONDITION)=S$(SIO_NEWCONDITION)
-05155       let ByInv$(IN_SERIALNO)=S$(SIO_NEWSERIAL)
-05156       let ByInv$(IN_LOCATION)=S$(SIO_NEWLOCATION)
-05157       let ByInv(IN_COST)=F(PU_UNITCOST)
-05158       let ByInv(IN_PRICE)=val(S$(SIO_NEWPRICE))
-05159       let ByInv(IN_QTYONHAND)=F(PU_QTY)
-05160       let ByInv$(IN_TAXABLE)=uprc$(trim$(S$(SIO_NEWTAXABLE)))
-05161       if ByInv$(IN_TAXABLE)<>"N" then let ByInv$(IN_TAXABLE)="Y"
-05162       let ByInv$(IN_STATUS)="A"
-05163       let ByInv(IN_DATEADDED)=F(PU_PURCHDATE)
-05164       let ByInv$(IN_NOTES)=F$(PU_NOTES)
-05165       write #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv
-05166    end if
-05167    let F$(PU_ITEMID)=ItemId$
-05168    WritePurchaseDone: !
-05169 fnend
+05118 ! #Include {buyenter}
+05119 ! #Include {nextinvid}
+05120 !
+05121 def fnWritePurchase(;___,ItemId$*8,Prefix$*3)
+05122    read #ByCfgFile, using form$(ByCfgFile), rec=1, reserve: mat ByCfg$, mat ByCfg norec WritePurchaseNoConfig
+05123    let F$(PU_PURCHASEID)="P"&lpad$(str$(ByCfg(CF_NEXTPURCHASE)),7,"0")
+05124    let ByCfg(CF_NEXTPURCHASE)+=1
+05125    rewrite #ByCfgFile, using form$(ByCfgFile): mat ByCfg$, mat ByCfg
+05126    release #ByCfgFile:
+05127    WritePurchaseNoConfig: !
+05128    let F(PU_TOTALCOST)=round(F(PU_UNITCOST)*F(PU_QTY),2)
+05129 !
+05130    if trim$(S$(SIO_BUYITEMID))<>"" then
+05131       let ItemId$=uprc$(trim$(S$(SIO_BUYITEMID)))
+05132       read #ByInvFile, using form$(ByInvFile), key=fnKey$(ByInvFile,ItemId$), reserve: mat ByInv$, mat ByInv nokey WritePurchaseDone
+05133       let ByInv(IN_QTYONHAND)+=F(PU_QTY)
+05134       let ByInv(IN_COST)=F(PU_UNITCOST)
+05135       rewrite #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv
+05136       release #ByInvFile:
+05137    else
+05138       if uprc$(trim$(S$(SIO_NEWTYPE)))="C" then
+05139          let Prefix$="CLK"
+05140       else
+05141          let Prefix$="PRT"
+05142       end if
+05143       let ItemId$=fnNextInvId$(ByInvFile,Prefix$)
+05144       mat ByInv$=("") : mat ByInv=(0)
+05145       let ByInv$(IN_ITEMID)=ItemId$
+05146       let ByInv$(IN_UPC)=S$(SIO_NEWUPC)
+05147       let ByInv$(IN_ITEMTYPE)=uprc$(trim$(S$(SIO_NEWTYPE)))
+05148       let ByInv$(IN_DESCRIPTION)=S$(SIO_NEWDESC)
+05149       let ByInv$(IN_CATEGORY)=S$(SIO_NEWCATEGORY)
+05150       let ByInv$(IN_MAKER)=S$(SIO_NEWMAKER)
+05151       let ByInv$(IN_ORIGIN)=S$(SIO_NEWORIGIN)
+05152       let ByInv$(IN_ERA)=S$(SIO_NEWERA)
+05153       let ByInv$(IN_CONDITION)=S$(SIO_NEWCONDITION)
+05154       let ByInv$(IN_SERIALNO)=S$(SIO_NEWSERIAL)
+05155       let ByInv$(IN_LOCATION)=S$(SIO_NEWLOCATION)
+05156       let ByInv(IN_COST)=F(PU_UNITCOST)
+05157       let ByInv(IN_PRICE)=val(S$(SIO_NEWPRICE))
+05158       let ByInv(IN_QTYONHAND)=F(PU_QTY)
+05159       let ByInv$(IN_TAXABLE)=uprc$(trim$(S$(SIO_NEWTAXABLE)))
+05160       if ByInv$(IN_TAXABLE)<>"N" then let ByInv$(IN_TAXABLE)="Y"
+05161       let ByInv$(IN_STATUS)="A"
+05162       let ByInv(IN_DATEADDED)=F(PU_PURCHDATE)
+05163       let ByInv$(IN_NOTES)=F$(PU_NOTES)
+05164       write #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv
+05165    end if
+05166    let F$(PU_ITEMID)=ItemId$
+05167    WritePurchaseDone: !
+05168 fnend
+05169 !
 05170 !
-05171 def fnNextItemId$*8(Prefix$*3;___,Highest)
-05172    restore #ByInvFile, key>=fnKey$(ByInvFile,Prefix$): nokey NextItemIdDone
-05173    do
-05174       read #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv eof NextItemIdDone
-05175       if ByInv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
-05176       let Highest=max(Highest,val(trim$(ByInv$(IN_ITEMID)(4:8)))) conv NextItemIdSkip
-05177       NextItemIdSkip: !
-05178    loop
-05179    NextItemIdDone: !
-05180    let fnNextItemId$=Prefix$&lpad$(str$(Highest+1),4,"0")
-05181 fnend
-05182 !
-05183 ! Imported From "function\buyexit.brs"
-05184 ! function\buyexit.brs
-05185 ! Created on 10/10/2026
-05186 !
-05187 ! fnBuyExit - Exit event for BUY. Closes the files fnBuyEnter opened.
-05188 !
-05189 def fnBuyExit
-05190    if ByInvFile then
-05191       let fnCloseFile(ByInvFile,"inventory")
-05192       let ByInvFile=0
-05193    end if
-05194    if ByCfgFile then
-05195       let fnCloseFile(ByCfgFile,"storecfg")
-05196       let ByCfgFile=0
-05197    end if
-05198 fnend
-05199 !
-05200 !
-05201 !
+05171 ! Imported From "function\buyexit.brs"
+05172 ! function\buyexit.brs
+05173 ! Created on 10/10/2026
+05174 !
+05175 ! fnBuyExit - Exit event for BUY. Closes the files fnBuyEnter opened.
+05176 !
+05177 def fnBuyExit
+05178    if ByInvFile then
+05179       let fnCloseFile(ByInvFile,"inventory")
+05180       let ByInvFile=0
+05181    end if
+05182    if ByCfgFile then
+05183       let fnCloseFile(ByCfgFile,"storecfg")
+05184       let ByCfgFile=0
+05185    end if
+05186 fnend
+05187 !
+05188 ! Imported From "function\nextinvid.brs"
+05189 ! function\nextinvid.brs
+05190 ! Created on 10/10/2026
+05191 !
+05192 ! fnNextInvId$ - The next free item number with a given prefix (CLK, PRT or SVC),
+05193 !   read from the inventory file open on InvFile: the highest number in use plus one,
+05194 !   as in CLK0013. Shared by BUY (new items bought) and INVEDIT (items added there).
+05195 !
+05196 dim NxInv$(1)*1024, NxInv(1)
+05197 !
+05198 def fnNextInvId$*8(InvFile,Prefix$*3;___,Highest)
+05199    restore #InvFile, key>=fnKey$(InvFile,Prefix$): nokey NextInvIdDone
+05200    do
+05201       read #InvFile, using form$(InvFile): mat NxInv$, mat NxInv eof NextInvIdDone
+05202       if NxInv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
+05203       let Highest=max(Highest,val(trim$(NxInv$(IN_ITEMID)(4:8)))) conv NextInvIdSkip
+05204       NextInvIdSkip: !
+05205    loop
+05206    NextInvIdDone: !
+05207    let fnNextInvId$=Prefix$&lpad$(str$(Highest+1),4,"0")
+05208 fnend
+05209 !
+05210 !
+05211 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{validatebuyitem}" then
 85002       let fnCheckStringFunction = 0

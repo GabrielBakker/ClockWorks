@@ -28,6 +28,8 @@ def fnSaleQtyOk(ItemType$,Qty,OnHand,MaxPerSale,OtherQty,Description$*60)
       else
          let Msgbox("A sale can have at most "&str$(MaxPerSale)&" of "&trim$(Description$)&", and "&str$(OtherQty)&" are already on it.","Limit per Sale","OK","EXCL")
       end if
+   else if ItemType$<>"S" and OnHand<=0 then
+      let Msgbox(trim$(Description$)&" is sold out: we have none in stock.","Sold Out","OK","EXCL")
    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
       if OnHand=1 then
          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")

@@ -7,9 +7,8 @@
 !   inventory: a restock adds the quantity and takes the latest unit cost; a new
 !   item gets the next item number for its type (CLKnnnn or PRTnnnn) and is added.
 !
-! fnNextItemId$ - The next free item number with a given prefix.
-!
 ! #Include {buyenter}
+! #Include {nextinvid}
 
 def fnWritePurchase(;___,ItemId$*8,Prefix$*3)
    read #ByCfgFile, using form$(ByCfgFile), rec=1, reserve: mat ByCfg$, mat ByCfg norec WritePurchaseNoConfig
@@ -33,7 +32,7 @@ def fnWritePurchase(;___,ItemId$*8,Prefix$*3)
       else
          let Prefix$="PRT"
       end if
-      let ItemId$=fnNextItemId$(Prefix$)
+      let ItemId$=fnNextInvId$(ByInvFile,Prefix$)
       mat ByInv$=("") : mat ByInv=(0)
       let ByInv$(IN_ITEMID)=ItemId$
       let ByInv$(IN_UPC)=S$(SIO_NEWUPC)
@@ -60,14 +59,3 @@ def fnWritePurchase(;___,ItemId$*8,Prefix$*3)
    WritePurchaseDone: !
 fnend
 
-def fnNextItemId$*8(Prefix$*3;___,Highest)
-   restore #ByInvFile, key>=fnKey$(ByInvFile,Prefix$): nokey NextItemIdDone
-   do
-      read #ByInvFile, using form$(ByInvFile): mat ByInv$, mat ByInv eof NextItemIdDone
-      if ByInv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
-      let Highest=max(Highest,val(trim$(ByInv$(IN_ITEMID)(4:8)))) conv NextItemIdSkip
-      NextItemIdSkip: !
-   loop
-   NextItemIdDone: !
-   let fnNextItemId$=Prefix$&lpad$(str$(Highest+1),4,"0")
-fnend

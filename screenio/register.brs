@@ -490,19 +490,21 @@
 05464       else
 05465          let Msgbox("A sale can have at most "&str$(MaxPerSale)&" of "&trim$(Description$)&", and "&str$(OtherQty)&" are already on it.","Limit per Sale","OK","EXCL")
 05466       end if
-05467    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
-05468       if OnHand=1 then
-05469          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
-05470       else
-05471          let Msgbox("We only have "&str$(OnHand)&" of "&trim$(Description$)&" in stock, and "&str$(OtherQty)&" of them are already on this sale.","Not Enough Stock","OK","EXCL")
-05472       end if
-05473    else
-05474       let fnSaleQtyOk=1
-05475    end if
-05476 fnend
-05477 !
-05478 !
+05467    else if ItemType$<>"S" and OnHand<=0 then
+05468       let Msgbox(trim$(Description$)&" is sold out: we have none in stock.","Sold Out","OK","EXCL")
+05469    else if ItemType$<>"S" and OtherQty+Qty>OnHand then
+05470       if OnHand=1 then
+05471          let Msgbox(trim$(Description$)&" is one of a kind, and it's already on this sale.","Already on the Sale","OK","EXCL")
+05472       else
+05473          let Msgbox("We only have "&str$(OnHand)&" of "&trim$(Description$)&" in stock, and "&str$(OtherQty)&" of them are already on this sale.","Not Enough Stock","OK","EXCL")
+05474       end if
+05475    else
+05476       let fnSaleQtyOk=1
+05477    end if
+05478 fnend
 05479 !
+05480 !
+05481 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{additemtosale}" then
 85002       let fnCheckStringFunction = 0
