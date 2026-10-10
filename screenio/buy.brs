@@ -235,7 +235,7 @@
 05209       else
 05210          let Prefix$="PRT"
 05211       end if
-05212       let ItemId$=fnNextInvId$(ByInvFile,Prefix$)
+05212       let ItemId$=fnNextInvId$(ByInvFile,Prefix$,mat ByInv$,mat ByInv)
 05213       mat ByInv$=("") : mat ByInv=(0)
 05214       let ByInv$(IN_ITEMID)=ItemId$
 05215       let ByInv$(IN_UPC)=S$(SIO_NEWUPC)
@@ -288,22 +288,24 @@
 05262 !   read from the inventory file open on InvFile: the highest number in use plus one,
 05263 !   as in CLK0013. Shared by BUY (new items bought) and INVEDIT (items added there).
 05264 !
-05265 dim NxInv$(1)*1024, NxInv(1)
-05266 !
-05267 def fnNextInvId$*8(InvFile,Prefix$*3;___,Highest)
-05268    restore #InvFile, key>=fnKey$(InvFile,Prefix$): nokey NextInvIdDone
-05269    do
-05270       read #InvFile, using form$(InvFile): mat NxInv$, mat NxInv eof NextInvIdDone
-05271       if NxInv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
-05272       let Highest=max(Highest,val(trim$(NxInv$(IN_ITEMID)(4:8)))) conv NextInvIdSkip
-05273       NextInvIdSkip: !
-05274    loop
-05275    NextInvIdDone: !
-05276    let fnNextInvId$=Prefix$&lpad$(str$(Highest+1),4,"0")
-05277 fnend
-05278 !
-05279 !
+05265 !   Pass the arrays FileIO sized when it opened InvFile: reading form$(InvFile) into
+05266 !   arrays of any other size is BR error 0726 (data mapping error). Their contents
+05267 !   are overwritten.
+05268 !
+05269 def fnNextInvId$*8(InvFile,Prefix$*3,mat Inv$,mat Inv;___,Highest)
+05270    restore #InvFile, key>=fnKey$(InvFile,Prefix$): nokey NextInvIdDone
+05271    do
+05272       read #InvFile, using form$(InvFile): mat Inv$, mat Inv eof NextInvIdDone
+05273       if Inv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
+05274       let Highest=max(Highest,val(trim$(Inv$(IN_ITEMID)(4:8)))) conv NextInvIdSkip
+05275       NextInvIdSkip: !
+05276    loop
+05277    NextInvIdDone: !
+05278    let fnNextInvId$=Prefix$&lpad$(str$(Highest+1),4,"0")
+05279 fnend
 05280 !
+05281 !
+05282 !
 85000    def library fnCheckStringFunction(Function$*255)
 85001    if Function$ = "{validatenotblank}" then
 85002       let fnCheckStringFunction = 0

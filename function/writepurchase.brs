@@ -32,7 +32,7 @@ def fnWritePurchase(;___,ItemId$*8,Prefix$*3)
       else
          let Prefix$="PRT"
       end if
-      let ItemId$=fnNextInvId$(ByInvFile,Prefix$)
+      let ItemId$=fnNextInvId$(ByInvFile,Prefix$,mat ByInv$,mat ByInv)
       mat ByInv$=("") : mat ByInv=(0)
       let ByInv$(IN_ITEMID)=ItemId$
       let ByInv$(IN_UPC)=S$(SIO_NEWUPC)

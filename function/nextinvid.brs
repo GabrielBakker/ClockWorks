@@ -5,14 +5,16 @@
 !   read from the inventory file open on InvFile: the highest number in use plus one,
 !   as in CLK0013. Shared by BUY (new items bought) and INVEDIT (items added there).
 !
-dim NxInv$(1)*1024, NxInv(1)
-
-def fnNextInvId$*8(InvFile,Prefix$*3;___,Highest)
+!   Pass the arrays FileIO sized when it opened InvFile: reading form$(InvFile) into
+!   arrays of any other size is BR error 0726 (data mapping error). Their contents
+!   are overwritten.
+!
+def fnNextInvId$*8(InvFile,Prefix$*3,mat Inv$,mat Inv;___,Highest)
    restore #InvFile, key>=fnKey$(InvFile,Prefix$): nokey NextInvIdDone
    do
-      read #InvFile, using form$(InvFile): mat NxInv$, mat NxInv eof NextInvIdDone
-      if NxInv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
-      let Highest=max(Highest,val(trim$(NxInv$(IN_ITEMID)(4:8)))) conv NextInvIdSkip
+      read #InvFile, using form$(InvFile): mat Inv$, mat Inv eof NextInvIdDone
+      if Inv$(IN_ITEMID)(1:3)<>Prefix$ then exit do
+      let Highest=max(Highest,val(trim$(Inv$(IN_ITEMID)(4:8)))) conv NextInvIdSkip
       NextInvIdSkip: !
    loop
    NextInvIdDone: !

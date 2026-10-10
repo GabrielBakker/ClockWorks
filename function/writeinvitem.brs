@@ -20,7 +20,7 @@ def fnWriteInvItem(;___,WiInvFile,Prefix$*3)
          let Prefix$="SVC"
       end if
       let WiInvFile=fnOpen("inventory",mat WiInv$,mat WiInv,mat Form$)
-      let F$(IN_ITEMID)=fnNextInvId$(WiInvFile,Prefix$)
+      let F$(IN_ITEMID)=fnNextInvId$(WiInvFile,Prefix$,mat WiInv$,mat WiInv)
       let fnCloseFile(WiInvFile,"inventory")
    end if
 fnend
