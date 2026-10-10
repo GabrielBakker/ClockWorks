@@ -18,17 +18,22 @@
    dim Rule$*42, Line$*132
    dim ItemId$(1)*8, ItemDesc$(1)*60, ItemQty(1), ItemAmount(1)
 
-def library fnAfterSale(InvoiceNo$*8)
+! Printer$ is for automated use and testing: when given, the receipt goes there
+! without asking. start.brs leaves it out, so the clerk is asked.
+def library fnAfterSale(InvoiceNo$*8;Printer$*255,___,Status$)
    let fnLibraryLinkage
    let IvFile=Fnopen("invoice",mat Iv$,mat Iv,mat Form$,1)
-   read #IvFile, using form$(IvFile), key=fnKey$(IvFile,InvoiceNo$): mat Iv$, mat Iv nokey AfterSaleDone
-   if Iv$(IV_STATUS)="P" then
-      if 2==Msgbox("Sale "&trim$(InvoiceNo$)&" is complete. Print a receipt?","Receipt","Yn","QST") then
+   read #IvFile, using form$(IvFile), key=fnKey$(IvFile,InvoiceNo$): mat Iv$, mat Iv nokey AfterSaleRead
+   let Status$=Iv$(IV_STATUS)
+   AfterSaleRead: !
+   close #IvFile:
+   if Status$="P" then
+      if trim$(Printer$)<>"" then
+         let fnPrintReceipt(InvoiceNo$,Printer$)
+      else if 2==Msgbox("Sale "&trim$(InvoiceNo$)&" is complete. Print a receipt?","Receipt","Yn","QST") then
          let fnPrintReceipt(InvoiceNo$)
       end if
    end if
-   AfterSaleDone: !
-   let fnCloseFile(IvFile,"invoice")
 fnend
 
 def library fnPrintReceipt(InvoiceNo$*8;Printer$*255,___,Text$*255,Footer$*255)
@@ -269,8 +274,12 @@ def fnWrap$*255(&Text$,Width;___,Cut)
    end if
 fnend
 
+! A DEF LIBRARY function still has to be linked before code in its own library can
+! call it (error 2282 otherwise): fnAfterSale calls fnPrintReceipt. The linkage is
+! unnamed on purpose - naming "printlib" here would load a second copy of it.
 def fnLibraryLinkage
    if ~LibraryLinkage then
+      library : fnPrintReceipt
       library "fileio" : fnOpenFile, fnKey$, fnCloseFile, fnGetFileNumber
       let LibraryLinkage=1
    end if
