@@ -209,6 +209,19 @@ error 0630 (owner, confirmed 2026-10-10). The house way is an explicit open at t
 start program, e.g. for 24 x 96 screens: `open #0: "rows=27,cols=100, N=/#FFFFFF:#3C2614",display,outin`.
 The default #0 (24 x 80) is too small for any tab screen wider than about 76 columns.
 
+**Refusing a tab switch: use the Write event and leave `fkey` at 92.** BR's tab control switches
+the visible tab natively when it's clicked, before ScreenIO sees anything. ScreenIO then treats the
+click (fkey 92) as leaving: on an edit screen it sets `ExitMode=SaveAndQuit`, which runs the
+**Write event** before saving. If the Write event cancels with `ExitMode=0` **and `fkey` is still
+92**, ScreenIO switches the tab back itself (`Fnrunscreen`: `if ExitMode=0 and ParentWindow and
+fkey=92 then input #ParentWindow, …NOWAIT`). A Main Loop cancel can't do this: the usual
+`fkey(-1)` stops it and `ParentWindow` isn't passed to event code, so the screen keeps running
+under the other tab (confirmed 2026-10-10). Two consequences for an edit screen used as a tab:
+- Handle tab clicks in the Write event; let the Main Loop skip `fkey=92`.
+- With nothing to save, a tab click still means Save-and-quit, so ScreenIO **writes the
+  record**, an empty one if nothing was entered. Have the Write event set `ExitMode=QuitOnly` in
+  that case.
+
 **Give tab screens `BORDER=0`.** Each screen is run at row 1, column 1 of its tab window, which is
 exactly the screen's size; a border adds a row and a column on every side, so a bordered screen
 is "bigger than its parent window" and ScreenIO stops with that message. The tab is the frame.
