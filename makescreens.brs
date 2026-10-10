@@ -168,7 +168,7 @@ fnend
 
 ! ----- PURCHASES: the Purchases tab - every purchase, newest first --------------------
 def fnBuildPurchases
-   let fnStartScreen("PURCHASES","purchase",24,96,"FFFFFF","6B4423",1,"ClockWorks Purchases","The Purchases tab: every purchase, newest first, and New Purchase. Opened by start.brs as a tab.")
+   let fnStartScreen("PURCHASES","purchase",24,96,"FFFFFF","6B4423",0,"ClockWorks Purchases","The Purchases tab: every purchase, newest first, and New Purchase. Opened by start.brs as a tab.")
    let fnCtl("caption","Title","","Clocks and parts we've bought",2,3,40,29,1,"")
    let fnCtl("button","NewPurchaseButton","","New Purchase...",2,76,18,15,1,"[BUY]")
    let fnCtl("P","SearchPic_1","","",4,3,2,0,1,"","","","",0,"images\search.png")
@@ -187,7 +187,7 @@ fnend
 
 ! ----- REGISTER: the cash register (main screen) ------------------------------------
 def fnBuildRegister
-   let fnStartScreen("REGISTER","invoice",24,96,"FFFFFF","6B4423",1,"ClockWorks Register","The ClockWorks cash register. Opened by start.brs, one sale per call.","{registerenter}","{registerexit}","{registermainloop}")
+   let fnStartScreen("REGISTER","invoice",24,96,"FFFFFF","6B4423",0,"ClockWorks Register","The ClockWorks cash register. Opened by start.brs, one sale per call.","{registerenter}","{registerexit}","{registermainloop}")
    !         Type       Name                 Field        Text                               Row Col Wid Spec Hgt Function
    let fnCtl("caption", "Title",             "",          "ClockWorks Antique Clocks & Repair", 2,  3, 45, 34,  1, "")
    let fnCtl("caption", "Caption_INVOICENO", "",          "Invoice:",                         2, 66,  9,  8,  1, "","","R")
