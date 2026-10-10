@@ -265,6 +265,12 @@ Two kinds of content, both load-bearing:
 - **`LIBRARY "name":` with a library name but no function list LOADS that library immediately —
   it does not detach a linkage.** The only way to fully detach a library linkage is to end the main
   program. Don't infer a "no functions ⇒ unlink" meaning from the empty list.
+- **Inside a library, calling one of its own `DEF LIBRARY` functions still needs a `LIBRARY`
+  statement**, or the call fails with error 2282, "library function not processed by library
+  statement". Use the **unnamed** form, `LIBRARY : FNPRINTRECEIPT`, in the library's one-time
+  linkage: naming the library itself would load a second copy (see
+  [library-facility](../br_tree/50-libraries/library-facility/spec.md#semantics)). It's easy to
+  miss in testing, because calling the same function from *outside* works (confirmed 2026-10-10).
 _ **OS utility use** BR has no regex, grep or find. However it has full access to such OS commands
   via `EXECUTE system <string>`.
 
