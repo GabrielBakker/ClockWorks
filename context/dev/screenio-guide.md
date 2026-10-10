@@ -597,13 +597,22 @@ designing a parent screen whose embedded child lists the parent record's detail 
   accepts the (possibly modified) `FieldText$`; `0`/`""` throws the typing away and puts back the
   value that was there before. To always clear a box after acting on it (an item-entry box), set
   `FieldText$=""` and return `1`, whether the action succeeded or not.
-- **Validate a field where it's typed, not at Save** (owner's house style). Give a field with a
-  fixed set of values (a one-letter type or status code) its own Validate function that returns
-  0 for anything not allowed, and put the BR attribute **`AEX`** on the control (`ATTR$`): the
-  field then auto-exits as soon as it's filled, so the Validate runs the moment the cursor leaves
-  it, and the record can never hold a bad value. The Save button then needn't check that field
-  again. A Validate only runs when the field *changes*, so a new record's Initialize event should
-  give such a field a valid default instead of leaving it blank.
+- **Validate every field where it's typed, not at Save** (owner's house style). Each field gets
+  a Validate function that returns 0 for anything not allowed: a fixed set of codes, a number that
+  must be whole or not negative, text that must not be blank. Small reusable ones
+  (`{validatenotblank}`, `{validatenotnegative}`, …) serve many fields. A Validate on a `PIC`
+  field receives the *formatted* text (`1,234.50`), so strip the commas before `VAL`. For a short
+  code field, the BR attribute **`AEX`** (`ATTR$`) auto-exits as soon as it's filled, so its
+  Validate runs right away. The Save button keeps only what a field can't check for itself:
+  a Validate only runs when the field *changes*, so a required field a new record never touched
+  is still blank, and rules spanning several fields (fill in this *or* that). Initial values for
+  a new record go in the screen's **Initialize** event, which also keeps code fields from
+  starting blank.
+- **A yes/no field is a check box, not a validated text box.** `FIELDTYPE$="check"`, bound by
+  `FIELDNAME$` (or a free `S$` field), `DESCRIPTION$` is the label beside the box, `SPECWIDTH`
+  is the label length + 1, colors blank so the label inherits the screen's. **`TRUEVALUE$` and
+  `FALSEVALUE$`** are what get stored, e.g. `Y`/`N` to match the data (a real app's use `1`/`0`).
+  Nothing to validate: it can only hold one of the two.
 - **Exit buttons use `let ExitMode=QuitOnly`** (or another exit mode), never a custom function;
   ScreenIO then runs the screen's **Exit event** before closing. The Exit event is for cleanup,
   such as closing files the Enter event opened.
