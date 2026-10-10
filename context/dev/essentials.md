@@ -440,9 +440,14 @@ overflowed or errored upstream, not that the program is genuinely waiting on the
   Compare `trim$(M$)="CASH"` (or pad the literal). It fails silently: a report that totaled
   payments by method this way found nothing and printed zeros (confirmed 2026-10-09).
   One-character `C 1` codes and full-width values aren't affected.
-- **`PIC(...)` can't format a negative number.** `CNVRT$("PIC(ZZZ,ZZ#.##)",-5)` stops with BR
-  error 0002, "conversion error". Format the absolute value and add the sign yourself wherever
-  an amount can go negative (a net figure, a balance).
+- **A `PIC(...)` without a sign position can't format a negative number.**
+  `CNVRT$("PIC(ZZZ,ZZ#.##)",-5.5)` stops with BR error 0002, "conversion error". Put a `-` in the
+  picture wherever an amount can go negative (a net figure, a balance). Confirmed 2026-10-09 on
+  the kit's 4.33c, for -5.5 / 1234.5:
+  - `PIC(-ZZZ,ZZ#.##)`: `-      5.50` / `   1,234.50` (sign in a fixed column at the left)
+  - `PIC(ZZZ,ZZ#.##-)`: `      5.50-` / `  1,234.50 ` (trailing sign)
+  - `PIC(---,--#.##)`: `     -5.50` / `  1,234.50` (floating sign, next to the digits: usually
+    what a report wants)
 
 - **`SUBSTITUTE` rewrites more than you expect.** An entry matches its text anywhere in a file
   name, ignoring case, including the start of a longer name (`bcp\unibarf` also catches
